@@ -14,22 +14,22 @@ body[data-theme=warm]{--fg:#ece8e1;--mut:#b8b3aa;--sand:#d8b98a;--b0:#2a2d33;--b
 html,body{height:100%;margin:0}
 body{overflow:hidden;color:var(--fg);font-family:Tajawal,"Segoe UI",Tahoma,sans-serif;background:radial-gradient(130% 90% at 50% 0%,var(--b0) 0%,var(--b1) 55%,var(--b2) 100%);cursor:none}
 button,a{cursor:pointer;font-family:inherit}
-#stage{height:100%;display:flex;flex-direction:column;justify-content:space-between;gap:1.6vh;padding:2.5vh 4vw;transition:transform 4s ease}
+#stage{height:100%;display:flex;flex-direction:column;justify-content:space-between;gap:1.2vh;padding:2vh 4vw;transition:transform 4s ease}
 header{display:flex;justify-content:space-between;align-items:flex-start;gap:2vw;padding-left:12vw}
 #hd{color:var(--mut);font-size:min(2.2vw,3.6vh)}
 #hd b{color:var(--fg);font-weight:800;font-size:1.25em;margin-inline-end:.6em}
 #sports{display:flex;gap:1.4vw;align-items:stretch;justify-content:center;min-height:0}
 #sports>section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1vh 1.2vw;min-width:0}
-#sports>section{flex:1 1 0;max-width:min(30vw,540px)}#ah{text-align:center}
+#sports>section{flex:1 1 0;max-width:min(30vw,540px)}
 #sports h3{margin:0 0 .5vh;font-size:min(1.5vw,2.6vh);color:var(--sand);font-weight:800}
 #pay{display:flex;gap:1.4vw;justify-content:center}
-.s{flex:0 0 min(19vw,340px);display:flex;flex-direction:column;align-items:center;text-align:center;padding:.3vh .8vw;background:var(--card);border:1px solid var(--line);border-radius:12px}
-.s span{color:var(--mut);font-size:min(1.2vw,2.1vh)}
-.s b{font-weight:800;font-size:min(1.7vw,3vh);line-height:1.2}
-.s small{color:var(--mut);font-size:min(1.05vw,1.8vh)}
+.s{flex:0 0 min(24vw,440px);display:flex;flex-direction:column;align-items:center;text-align:center;padding:.5vh 1vw;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.s span{color:var(--mut);font-size:min(1.5vw,2.6vh)}
+.s b{font-weight:800;font-size:min(2.3vw,4vh);line-height:1.25}
+.s small{color:var(--mut);font-size:min(1.3vw,2.2vh)}
 .s.n b{color:var(--sand)}
 main{text-align:center}
-#clock{direction:ltr;font-weight:300;font-size:min(9vw,14vh);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+#clock{direction:ltr;font-weight:300;font-size:min(8vw,12vh);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 #clock small{font-size:.22em;color:var(--sand);font-weight:500;margin-inline:.3em;letter-spacing:0}
 #next{margin-top:1vh;font-size:min(2.6vw,4.2vh);color:var(--mut)}
 #next b{color:var(--sand);font-weight:800}
@@ -72,20 +72,28 @@ main{text-align:center}
 @keyframes pl{50%{opacity:.25}}
 .m.done{opacity:.5}
 .m.done .t{color:var(--fg)}
-#ah .win{margin:-.2vh -.6vw .6vh;padding:.4vh .6vw;border-radius:10px;background:#4ade8022;border:1px solid #4ade8066;color:#4ade80;font-weight:800;font-size:min(1.6vw,2.8vh)}
+#ah .win{margin:-.2vh -.4vw .6vh;padding:.4vh .6vw;border-radius:10px;background:#4ade8022;border:1px solid #4ade8066;color:#4ade80;font-weight:800;font-size:min(1.6vw,2.8vh);text-align:center}
 #ah .win span{direction:ltr;display:inline-block;margin-inline-start:.5em}
-#ah .top{display:flex;align-items:center;justify-content:center;gap:1vw}
-#ah img{height:min(7vh,7vw);width:auto}
-#ah .nm{font-weight:800;font-size:min(2vw,3.4vh)}
-#ah .rk{color:var(--mut);font-size:min(1.4vw,2.4vh)}
-#ah .rk b{color:var(--sand);font-size:1.3em}
-#ah .fm{display:flex;justify-content:center;gap:.5vw;margin:.6vh 0}
-#ah .fm i{font-style:normal;width:min(2.4vw,4vh);height:min(2.4vw,4vh);border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:min(1.3vw,2.2vh);color:#0b1117}
+#ah .hd2{display:flex;align-items:center;gap:.9vw}
+#ah img{height:min(6.4vh,6.4vw);width:auto}
+#ah .ti{flex:1;text-align:right}
+#ah .nm{font-weight:800;font-size:min(2vw,3.5vh);line-height:1.15}
+#ah .sub{color:var(--mut);font-size:min(1.15vw,2vh)}
+#ah .stt{display:flex;gap:.5vw}
+#ah .stt div{min-width:min(5vw,7vh);padding:.4vh .5vw;border-radius:10px;background:#ffffff10;text-align:center;line-height:1.1}
+#ah .stt b{display:block;font-size:min(2.2vw,3.8vh);font-weight:800}
+#ah .stt div:first-child b{color:var(--sand)}
+#ah .stt small{color:var(--mut);font-size:min(1vw,1.7vh)}
+#ah .fm{display:flex;justify-content:center;gap:.5vw;margin:.6vh 0 .4vh;padding-bottom:.6vh;border-bottom:1px solid var(--line)}
+#ah .fm i{font-style:normal;width:min(2vw,3.4vh);height:min(2vw,3.4vh);border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:min(1.2vw,2.1vh);color:#0b1117}
 .W{background:#4ade80}.D{background:#9aa7b3}.L{background:#f87171}
-#ah .ls{display:flex;justify-content:center;gap:.8vw;font-size:min(1.2vw,2.1vh);color:var(--mut)}
-#ah .ls span{direction:rtl;white-space:nowrap}#ah .ls u{text-decoration:none;direction:ltr;display:inline-block;font-weight:800}
-#ah .ls .W-t{color:#4ade80}#ah .ls .D-t{color:#9aa7b3}#ah .ls .L-t{color:#f87171}
-#ah .nx{margin-top:.6vh;font-size:min(1.4vw,2.4vh)}#ah .nx b{color:var(--sand)}
+#ah .rs{display:flex;justify-content:space-between;align-items:center;padding:.25vh .2vw;font-size:min(1.35vw,2.3vh)}
+#ah .rs .sc{direction:ltr;display:inline-block;margin:0 .5em;font-weight:800;font-variant-numeric:tabular-nums}
+#ah .rs .rr{font-size:.85em;font-weight:500}
+#ah .rs.W .rr{color:#4ade80}#ah .rs.L .rr{color:#f87171}#ah .rs.D .rr{color:var(--mut)}
+#ah .rs.W,#ah .rs.D,#ah .rs.L{background:none}
+#ah .nx{margin-top:.6vh;padding:.7vh .8vw;border-radius:10px;background:#ffffff10;display:flex;justify-content:space-between;align-items:center;font-size:min(1.3vw,2.2vh)}
+#ah .nx span{color:var(--mut)}#ah .nx b{font-size:1.1em}
 .e{display:grid;grid-template-columns:1fr auto;gap:.8vw;align-items:center;padding:.3vh 0;font-size:min(1.45vw,2.5vh);border-top:1px solid #ffffff12}
 .e:first-of-type{border-top:0}
 .e small{display:block;color:var(--mut);font-size:.72em}
@@ -280,12 +288,13 @@ function ahRender(){
   let h='';
   if(a.win){const t=Date.parse(a.win.at+':00+03:00'),p=a.win.s.split('-').reverse().join(' - ');
     if(now>=t+105*6e4&&now<t+105*6e4+48*36e5)h+=`<div class="win">🏆 مبروك الفوز <span>${p}</span></div>`}
-  h+=`<div class="top"><img src="${LOGO}" alt=""><div><div class="nm">الأهلي</div>`+
-    (a.rank?`<div class="rk">المركز <b>${a.rank}</b> · ${a.pts} نقطة</div>`:'')+`</div></div>`;
+  h+=`<div class="hd2"><img src="${LOGO}" alt=""><div class="ti"><div class="nm">الأهلي</div><div class="sub">دوري روشن${a.gp?' · الجولة '+a.gp:''}</div></div>`+
+    (a.rank?`<div class="stt"><div><b>${a.rank}</b><small>الترتيب</small></div><div><b>${a.pts}</b><small>نقطة</small></div></div>`:'')+`</div>`;
   if(a.form&&a.form.length)h+='<div class="fm">'+a.form.map(r=>`<i class="${r}">${FL[r]}</i>`).join('')+'</div>';
-  if(a.last&&a.last.length)h+='<div class="ls">'+a.last.map(l=>`<span class="${l.r}-t">${l.o} <u>${l.s.split('-').reverse().join(' - ')}</u></span>`).join('')+'</div>';
-  if(!(a.form&&a.form.length)&&!(a.last&&a.last.length)&&!a.next)h+='<div class="rk" style="margin-top:1vh">بانتظار أول تحديث للبيانات</div>';
-  if(a.next){const n=a.next;h+=`<div class="nx">القادمة: <b>${n.o}</b> · ${dLabel(n.d)} ${f12(TT(n))}</div>`}
+  const RL={W:'فوز',D:'تعادل',L:'خسارة'};
+  if(a.last&&a.last.length)h+=a.last.map(l=>`<div class="rs ${l.r}"><span>الأهلي<span class="sc">${l.s.split('-').reverse().join(' - ')}</span>${l.o}</span><span class="rr">${RL[l.r]}</span></div>`).join('');
+  if(!(a.form&&a.form.length)&&!(a.last&&a.last.length)&&!a.next)h+='<div class="sub" style="margin-top:1vh;text-align:center">بانتظار أول تحديث للبيانات</div>';
+  if(a.next){const n=a.next;h+=`<div class="nx"><span>القادمة</span><b>${a.next.home===false?n.o+' × الأهلي':'الأهلي × '+n.o}</b><span>${dLabel(n.d)} · ${f12(TT(n))}</span></div>`}
   $('ah').innerHTML=h;
 }
 // ===== أبرز مباريات أوروبا =====
