@@ -5,7 +5,8 @@ import json, re, sys, urllib.request, datetime as dt
 import xml.etree.ElementTree as ET
 
 RIY = dt.timezone(dt.timedelta(hours=3))
-UA = {"User-Agent": "Mozilla/5.0 (tabuk-screen data updater)"}
+UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+      "Accept": "application/rss+xml,application/xml,application/json,text/xml,*/*;q=0.8", "Accept-Language": "ar,en;q=0.8"}
 NOW = dt.datetime.now(RIY)
 
 def get(url, timeout=25):
@@ -85,25 +86,36 @@ def fixtures():
 # ---------- الأهلي: ترتيب ونتائج وقادم ----------
 ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/scoreboard?dates=%s"
 AHLI = "8346"
+def day_events(league, day):
+    last = None
+    for _ in range(2):
+        try:
+            j = json.loads(get(ESPN % (league, day.strftime("%Y%m%d"))))
+            return j.get("events", [])
+        except Exception as e:
+            last = e
+    raise last
+
 def events(league, d1, d2):
-    j = json.loads(get(ESPN % (league, d1.strftime("%Y%m%d") + "-" + d2.strftime("%Y%m%d"))))
-    return j.get("events", [])
+    """يجلب يوماً بيوم (نطاق التواريخ يرفضه ESPN بخطأ 400) وبشكل متوازٍ."""
+    from concurrent.futures import ThreadPoolExecutor
+    days = [d1 + dt.timedelta(days=i) for i in range((d2.date() - d1.date()).days + 1)]
+    def one(d):
+        try:
+            return day_events(league, d)
+        except Exception:
+            return None
+    with ThreadPoolExecutor(8) as ex:
+        res = list(ex.map(one, days))
+    if all(r is None for r in res):
+        raise ValueError("تعذر جلب %s" % league)
+    return [e for r in res if r for e in r]
 
 def ahli():
     evs, seen = [], set()
-    start = NOW - dt.timedelta(days=50)
-    ok_chunks = 0
-    for i in range(0, 85, 10):
-        a = start + dt.timedelta(days=i)
-        try:
-            for ev in events("ksa.1", a, a + dt.timedelta(days=9)):
-                if ev.get("id") not in seen:
-                    seen.add(ev.get("id")); evs.append(ev)
-            ok_chunks += 1
-        except Exception:
-            pass
-    if ok_chunks == 0:
-        raise ValueError("تعذر جلب جدول الدوري")
+    for ev in events("ksa.1", NOW - dt.timedelta(days=45), NOW + dt.timedelta(days=25)):
+        if ev.get("id") not in seen:
+            seen.add(ev.get("id")); evs.append(ev)
     past, fut = [], []
     for ev in evs:
         comps = ev["competitions"][0]["competitors"]
@@ -170,7 +182,8 @@ def eu_league(lg):
                     w += wt; arn[n] = arabic; break
         if w:
             out.append((w, {"d": k.date().isoformat(), "t": k.strftime("%H:%M"), "h": arn[h], "a": arn[a], "lg": lg}))
-    out.sort(key=lambda x: (-x[0], x[1]["d"], x[1]["t"]))
+    uniq = {(m["d"], m["t"], m["h"], m["a"]): (w, m) for w, m in out}
+    out = sorted(uniq.values(), key=lambda x: (-x[0], x[1]["d"], x[1]["t"]))
     return [m for _, m in out[:2]]
 
 def europe():
