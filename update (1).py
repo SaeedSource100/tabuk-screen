@@ -1,0 +1,224 @@
+#!/usr/bin/env python3
+"""يجلب الأخبار والمباريات والطقس ويكتب data.json. يعمل على GitHub Actions كل ساعة.
+أي مصدر يفشل: تبقى بياناته القديمة كما هي."""
+import json, re, sys, urllib.request, datetime as dt
+import xml.etree.ElementTree as ET
+
+RIY = dt.timezone(dt.timedelta(hours=3))
+UA = {"User-Agent": "Mozilla/5.0 (tabuk-screen data updater)"}
+NOW = dt.datetime.now(RIY)
+
+def get(url, timeout=25):
+    req = urllib.request.Request(url, headers=UA)
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.read()
+
+# ---------- الأخبار: خلاصة RSS الرسمية لقسم السعودية في العربية ----------
+SKIP = ("/art/", "/views/", "/social/", "/sport/", "/aswaq/", "/culture", "/last-page/", "/1300GMT/")
+def news():
+    root = ET.fromstring(get("https://www.alarabiya.net/feed/rss2/ar/saudi-today.xml"))
+    out, seen = [], set()
+    for it in root.iter("item"):
+        title = re.sub(r"\s+", " ", (it.findtext("title") or "")).strip()
+        link = (it.findtext("link") or "").strip()
+        if not title or title in seen or any(x in link for x in SKIP):
+            continue
+        if "/saudi-today/" not in link and not re.search("السعود|المملكة", title):
+            continue
+        seen.add(title)
+        out.append(title)
+        if len(out) >= 10:
+            break
+    if len(out) < 3:
+        raise ValueError("عدد الأخبار قليل جداً: %d" % len(out))
+    return out
+
+# ---------- المباريات: ESPN (دوري روشن ksa.1) ----------
+AR = [("diriyah", "الدرعية"), ("riyadh", "الرياض"), ("taawoun", "التعاون"), ("taawon", "التعاون"),
+      ("qadsiah", "القادسية"), ("ettifaq", "الاتفاق"), ("ittihad", "الاتحاد"), ("nassr", "النصر"),
+      ("neom", "نيوم"), ("hilal", "الهلال"), ("ahli", "الأهلي"), ("shabab", "الشباب"),
+      ("fateh", "الفتح"), ("khaleej", "الخليج"), ("fayha", "الفيحاء"), ("hazem", "الحزم"),
+      ("hazm", "الحزم"), ("kholood", "الخلود"), ("khulood", "الخلود"), ("abha", "أبها"),
+      ("faisaly", "الفيصلي"), ("fayseli", "الفيصلي"), ("damac", "ضمك"), ("najma", "النجمة"),
+      ("orobah", "العروبة"), ("okhdood", "الأخدود"), ("akhdoud", "الأخدود"), ("raed", "الرائد"),
+      ("wehda", "الوحدة"), ("tai", "الطائي")]
+def ar(name):
+    n = re.sub(r"[^a-z]", "", name.lower())
+    for k, v in AR:
+        if k in n:
+            return v
+    return name
+
+def parse_utc(s):
+    for f in ("%Y-%m-%dT%H:%MZ", "%Y-%m-%dT%H:%M:%SZ"):
+        try:
+            return dt.datetime.strptime(s, f).replace(tzinfo=dt.timezone.utc)
+        except ValueError:
+            pass
+    raise ValueError("تنسيق تاريخ غير معروف: " + s)
+
+def fixtures():
+    out = []
+    today = NOW.date()
+    keep = {today.isoformat(), (today + dt.timedelta(days=1)).isoformat()}
+    for off in (-1, 0, 1, 2):
+        day = (NOW + dt.timedelta(days=off)).strftime("%Y%m%d")
+        j = json.loads(get("https://site.api.espn.com/apis/site/v2/sports/soccer/ksa.1/scoreboard?dates=" + day))
+        for ev in j.get("events", []):
+            st = ev.get("status", {}).get("type", {})
+            if "POSTPONED" in str(st.get("name", "")) or "CANCEL" in str(st.get("name", "")):
+                continue
+            k = parse_utc(ev["date"]).astimezone(RIY)
+            if k.date().isoformat() not in keep:
+                continue
+            comps = ev["competitions"][0]["competitors"]
+            home = next(c for c in comps if c.get("homeAway") == "home")
+            away = next(c for c in comps if c.get("homeAway") == "away")
+            m = {"d": k.date().isoformat(), "t": k.strftime("%H:%M"),
+                 "h": ar(home["team"]["displayName"]), "a": ar(away["team"]["displayName"])}
+            if st.get("state") == "post":
+                m["hs"], m["as"] = int(home.get("score", 0)), int(away.get("score", 0))
+            out.append(m)
+    uniq = {(m["d"], m["t"], m["h"], m["a"]): m for m in out}
+    return sorted(uniq.values(), key=lambda m: (m["d"], m["t"]))
+
+# ---------- الأهلي: ترتيب ونتائج وقادم ----------
+ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/scoreboard?dates=%s"
+AHLI = "8346"
+def events(league, d1, d2):
+    j = json.loads(get(ESPN % (league, d1.strftime("%Y%m%d") + "-" + d2.strftime("%Y%m%d"))))
+    return j.get("events", [])
+
+def ahli():
+    evs, seen = [], set()
+    start = NOW - dt.timedelta(days=50)
+    ok_chunks = 0
+    for i in range(0, 85, 10):
+        a = start + dt.timedelta(days=i)
+        try:
+            for ev in events("ksa.1", a, a + dt.timedelta(days=9)):
+                if ev.get("id") not in seen:
+                    seen.add(ev.get("id")); evs.append(ev)
+            ok_chunks += 1
+        except Exception:
+            pass
+    if ok_chunks == 0:
+        raise ValueError("تعذر جلب جدول الدوري")
+    past, fut = [], []
+    for ev in evs:
+        comps = ev["competitions"][0]["competitors"]
+        if not any(str(c["team"].get("id")) == AHLI for c in comps):
+            continue
+        st = ev.get("status", {}).get("type", {})
+        if "POSTPONED" in str(st.get("name", "")) or "CANCEL" in str(st.get("name", "")):
+            continue
+        me = next(c for c in comps if str(c["team"].get("id")) == AHLI)
+        op = next(c for c in comps if c is not me)
+        k = parse_utc(ev["date"]).astimezone(RIY)
+        if st.get("state") == "post":
+            a_, b_ = int(me.get("score", 0)), int(op.get("score", 0))
+            past.append({"k": k, "o": ar(op["team"]["displayName"]), "s": "%d-%d" % (a_, b_),
+                         "r": "W" if a_ > b_ else "L" if a_ < b_ else "D"})
+        elif st.get("state") == "pre" and k > NOW:
+            fut.append({"k": k, "o": ar(op["team"]["displayName"]), "home": me.get("homeAway") == "home"})
+    past.sort(key=lambda x: x["k"]); fut.sort(key=lambda x: x["k"])
+    out = {"form": [p["r"] for p in past[-5:]][::-1],
+           "last": [{"o": p["o"], "s": p["s"], "r": p["r"]} for p in past[-3:]][::-1]}
+    if fut:
+        n = fut[0]
+        out["next"] = {"d": n["k"].date().isoformat(), "t": n["k"].strftime("%H:%M"), "o": n["o"], "home": n["home"]}
+    if past and past[-1]["r"] == "W":
+        out["win"] = {"at": past[-1]["k"].strftime("%Y-%m-%dT%H:%M"), "s": past[-1]["s"], "o": past[-1]["o"]}
+    try:  # الترتيب (اختياري)
+        j = json.loads(get("https://site.api.espn.com/apis/v2/sports/soccer/ksa.1/standings"))
+        for ch in j.get("children", [j]):
+            for e in ch.get("standings", {}).get("entries", []):
+                if str(e["team"].get("id")) == AHLI:
+                    stt = {x["name"]: x.get("value") for x in e["stats"]}
+                    out["rank"], out["pts"], out["gp"] = int(stt["rank"]), int(stt["points"]), int(stt.get("gamesPlayed", 0))
+    except Exception as e:
+        print("تحذير: الترتيب:", e, file=sys.stderr)
+    return out
+
+# ---------- أبرز مباريات أوروبا (إسبانيا وإنجلترا) ----------
+BIG = {  # اسم عربي : وزن
+ "esp.1": [("real madrid","ريال مدريد",5),("barcelona","برشلونة",5),("atletico","أتلتيكو مدريد",3),
+           ("sevilla","إشبيلية",2),("valencia","فالنسيا",2),("villarreal","فياريال",2),("athletic","أتلتيك بلباو",2),
+           ("real sociedad","ريال سوسيداد",2),("betis","ريال بيتيس",2)],
+ "eng.1": [("manchester city","مانشستر سيتي",5),("manchester united","مانشستر يونايتد",5),("liverpool","ليفربول",5),
+           ("arsenal","أرسنال",5),("chelsea","تشيلسي",4),("tottenham","توتنهام",4),("newcastle","نيوكاسل",3),
+           ("aston villa","أستون فيلا",2),("west ham","وست هام",2),("everton","إيفرتون",2)]}
+def eu_league(lg):
+    out = []
+    keep = {(NOW + dt.timedelta(days=i)).date().isoformat() for i in range(3)}
+    for ev in events(lg, NOW, NOW + dt.timedelta(days=2)):
+        st = ev.get("status", {}).get("type", {})
+        if "POSTPONED" in str(st.get("name", "")) or "CANCEL" in str(st.get("name", "")):
+            continue
+        k = parse_utc(ev["date"]).astimezone(RIY)
+        if k.date().isoformat() not in keep or (k < NOW - dt.timedelta(hours=3)):
+            continue
+        comps = ev["competitions"][0]["competitors"]
+        names = [c["team"]["displayName"] for c in comps]
+        h = next(c for c in comps if c.get("homeAway") == "home")["team"]["displayName"]
+        a = next(c for c in comps if c.get("homeAway") == "away")["team"]["displayName"]
+        w, arn = 0, {}
+        for n in (h, a):
+            arn[n] = n
+            for key, arabic, wt in BIG[lg]:
+                if key in n.lower():
+                    w += wt; arn[n] = arabic; break
+        if w:
+            out.append((w, {"d": k.date().isoformat(), "t": k.strftime("%H:%M"), "h": arn[h], "a": arn[a], "lg": lg}))
+    out.sort(key=lambda x: (-x[0], x[1]["d"], x[1]["t"]))
+    return [m for _, m in out[:2]]
+
+def europe():
+    res, ok = [], 0
+    for lg in ("esp.1", "eng.1"):
+        try:
+            res += eu_league(lg); ok += 1
+        except Exception as e:
+            print("تحذير: %s: %s" % (lg, e), file=sys.stderr)
+    if ok == 0:
+        raise ValueError("تعذر جلب الدوريات الأوروبية")
+    return sorted(res, key=lambda m: (m["d"], m["t"]))
+
+# ---------- الطقس: Open-Meteo ----------
+def wmo(c):
+    if c == 0: return "clear"
+    if c in (1, 2): return "partly"
+    if c == 3: return "cloud"
+    if 51 <= c <= 67 or 80 <= c <= 82 or c >= 95: return "rain"
+    return "cloud"
+
+def weather():
+    j = json.loads(get("https://api.open-meteo.com/v1/forecast?latitude=28.3835&longitude=36.5662"
+                       "&current=temperature_2m,weather_code&timezone=Asia%2FRiyadh"))
+    c = j["current"]
+    return {"t": c["temperature_2m"], "c": wmo(c["weather_code"]), "at": c["time"]}
+
+def main(path="data.json"):
+    try:
+        data = json.load(open(path, encoding="utf-8"))
+    except Exception:
+        data = {}
+    errs = []
+    for key, fn in (("news", news), ("fx", fixtures), ("wx", weather), ("ahli", ahli), ("eu", europe)):
+        try:
+            data[key] = fn()
+        except Exception as e:
+            errs.append("%s: %s" % (key, e))
+    data["generated"] = NOW.strftime("%Y-%m-%dT%H:%M")
+    data["updated"] = NOW.date().isoformat()
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
+    for e in errs:
+        print("تحذير:", e, file=sys.stderr)
+    print("تم. أخطاء:", len(errs))
+    # نفشل التشغيل فقط لو فشلت المصادر الخمسة كلها
+    if len(errs) == 5:
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
