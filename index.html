@@ -9,6 +9,14 @@
 :root{--fg:#e6ebf0;--mut:#a9b8c4;--sand:#9cc2d9;--card:#ffffff0e;--line:#ffffff1f;--b0:#1e2c3d;--b1:#16222f;--b2:#0f1822}
 body[data-theme=teal]{--fg:#f1eadb;--mut:#b9c3cf;--sand:#e8b865;--b0:#1d2f3a;--b1:#142430;--b2:#0e1a23}
 body[data-theme=warm]{--fg:#ece8e1;--mut:#b8b3aa;--sand:#d8b98a;--b0:#2a2d33;--b1:#23262b;--b2:#1a1c20}
+body.rainy{--fg:#e3eefa;--mut:#a9c2dc;--sand:#8fc1ee;--b0:#1b3352;--b1:#132235;--b2:#0c1624}
+body.rainy #clock{color:#cfe3f7}
+body.rainy #wx{background:#2f6aa655;gap:.8vw}
+#rain{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}
+body.rainy #rain{display:block}
+#rain i{position:absolute;top:-6vh;width:2px;height:4vh;border-radius:1px;background:#9cc8f0;opacity:.35;animation:rf linear infinite}
+@keyframes rf{to{transform:translateY(112vh)}}
+#stage{position:relative;z-index:1}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%;margin:0}
@@ -20,6 +28,8 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:2vw
 #hd b{color:var(--fg);font-weight:800;font-size:1.25em;margin-inline-end:.6em}
 #sports{display:flex;gap:1.4vw;align-items:stretch;justify-content:center;min-height:0}
 #sports>section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1vh 1.2vw;min-width:0}
+#fx,#eu{display:flex;flex-direction:column}
+#fx>.m,#eu>.e{flex:1 1 0;max-height:9vh;padding:.4vh 0}
 #sports>section{flex:1 1 0;max-width:min(30vw,540px)}
 #sports h3{margin:0 0 .5vh;font-size:min(1.5vw,2.6vh);color:var(--sand);font-weight:800}
 #pay{display:flex;gap:1.4vw;justify-content:center}
@@ -29,7 +39,7 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:2vw
 .s small{color:var(--mut);font-size:min(1.3vw,2.2vh)}
 .s.n b{color:var(--sand)}
 main{text-align:center}
-#clock{direction:ltr;font-weight:300;font-size:min(8vw,12vh);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+#clock{direction:ltr;display:flex;justify-content:center;align-items:baseline;font-weight:300;font-size:min(8vw,12vh);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 #clock small{font-size:.22em;color:var(--sand);font-weight:500;margin-inline:.3em;letter-spacing:0}
 #next{margin-top:1vh;font-size:min(2.6vw,4.2vh);color:var(--mut)}
 #next b{color:var(--sand);font-weight:800}
@@ -61,12 +71,12 @@ main{text-align:center}
 #grid[data-ps=pills] .p.on em{font-size:max(16px,min(3.6vw,6vh))}
 #fx{flex:1;max-width:720px;padding:1vh 1.6vw;background:var(--card);border:1px solid var(--line);border-radius:16px}
 #fx h3{margin:0 0 .6vh;font-size:min(1.9vw,3vh);color:var(--sand);font-weight:800}
-.m{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.9vw;padding:.3vh 0;font-size:min(1.55vw,2.7vh);border-top:1px solid #ffffff12}
+.m{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.9vw;padding:.3vh 0;font-size:min(1.5vw,2.7vh);border-top:1px solid #ffffff12}
 .m:first-of-type{border-top:0}
 .m .t{white-space:nowrap;direction:ltr;color:var(--sand);font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
 .m .pr{display:flex;justify-content:center;align-items:center;gap:.5em;white-space:nowrap}
 .m .sc{direction:ltr;text-align:center;font-weight:800;font-variant-numeric:tabular-nums;color:var(--mut)}
-.m .st{font-size:.72em;color:var(--mut);text-align:left;white-space:nowrap}
+.m .st{font-size:.66em;color:var(--mut);text-align:left;white-space:nowrap}
 .m.live .st{color:#4ade80;font-weight:800}
 .m.live .st::before{content:"";display:inline-block;width:.5em;height:.5em;border-radius:50%;background:#4ade80;margin-inline-end:.4em;animation:pl 1.2s ease-in-out infinite}
 @keyframes pl{50%{opacity:.25}}
@@ -94,7 +104,7 @@ main{text-align:center}
 #ah .rs.W,#ah .rs.D,#ah .rs.L{background:none}
 #ah .nx{margin-top:.6vh;padding:.7vh .8vw;border-radius:10px;background:#ffffff10;display:flex;justify-content:space-between;align-items:center;font-size:min(1.3vw,2.2vh)}
 #ah .nx span{color:var(--mut)}#ah .nx b{font-size:1.1em}
-.e{display:grid;grid-template-columns:1fr auto;gap:.8vw;align-items:center;padding:.3vh 0;font-size:min(1.45vw,2.5vh);border-top:1px solid #ffffff12}
+.e{display:grid;grid-template-columns:1fr auto;gap:.8vw;align-items:center;padding:.3vh 0;font-size:min(1.6vw,2.8vh);border-top:1px solid #ffffff12}
 .e:first-of-type{border-top:0}
 .e small{display:block;color:var(--mut);font-size:.72em}
 .e .w{color:var(--sand);font-weight:800;text-align:left;white-space:nowrap;font-size:.9em}
@@ -130,6 +140,7 @@ main{text-align:center}
 </style>
 </head>
 <body>
+<div id="rain"></div>
 <div id="stage">
   <header><div id="hd"><b>تبوك</b><span id="dates"></span></div><div id="wx"></div></header>
   <main><div id="clock"></div><div id="next"></div></main>
@@ -151,6 +162,7 @@ main{text-align:center}
   <div id="tl" style="font-size:min(1.9vw,3vh);color:var(--mut);margin:1.4vh 0 .8vh">الثيم</div><div id="themes"></div>
   <div id="rl" style="font-size:min(1.9vw,3vh);color:var(--mut);margin:1.4vh 0 .8vh">التحديث التلقائي للبيانات</div><div id="refs"></div>
   <button class="row" id="testA">تجربة تنبيه الأذان</button>
+  <button class="row" id="testR">تجربة شكل المطر</button>
   <div id="ls"></div>
   <button id="close">تم</button>
 </div></div>
@@ -160,8 +172,8 @@ const DATA={"updated":"2026-10-20","news":["المملكة تقود إنشاء �
 /*DATA-END*/
 
 // ===== الإعدادات =====
-const DEF={countdown:1,prayers:1,salary:1,matches:1,ahli:1,europe:1,news:1,apps:1,weather:1,adhan:1,mode:'ticker',theme:'blue',pstyle:'strip',refresh:15};
-const OPTS=[['countdown','العد التنازلي للصلاة القادمة'],['prayers','أوقات الصلاة'],['salary','مواعيد الراتب'],['matches','مباريات اليوم'],['ahli','بطاقة الأهلي'],['europe','أبرز مباريات أوروبا'],['news','الأخبار'],['weather','الطقس'],['adhan','تنبيه الأذان'],['apps','زر يوتيوب']];
+const DEF={countdown:1,prayers:1,salary:1,matches:1,ahli:1,europe:1,news:1,apps:1,weather:1,rain:1,adhan:1,mode:'ticker',theme:'blue',pstyle:'strip',refresh:15};
+const OPTS=[['countdown','العد التنازلي للصلاة القادمة'],['prayers','أوقات الصلاة'],['salary','مواعيد الراتب'],['matches','مباريات اليوم'],['ahli','بطاقة الأهلي'],['europe','أبرز مباريات أوروبا'],['news','الأخبار'],['weather','الطقس'],['rain','شكل المطر عند هطوله'],['adhan','تنبيه الأذان'],['apps','زر يوتيوب']];
 const TARGET={countdown:'next',prayers:'grid',salary:'pay',matches:'fx',ahli:'ah',europe:'eu',news:'news',weather:'wx',apps:'yt'};
 let S;try{S={...DEF,...JSON.parse(localStorage.getItem('tabukS')||'{}')}}catch(e){S={...DEF}}
 const save=()=>{try{localStorage.setItem('tabukS',JSON.stringify(S))}catch(e){}};
@@ -187,6 +199,7 @@ $('opts').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!
 $('refs').addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(!b)return;S.refresh=+b.dataset.r;save();applyS();$('refs').querySelector(`[data-r="${b.dataset.r}"]`).focus()});
 $('pstyles').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;S.pstyle=b.dataset.p;save();applyS();$('pstyles').querySelector(`[data-p="${b.dataset.p}"]`).focus()});
 $('themes').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;S.theme=b.dataset.t;save();applyS();$('themes').querySelector(`[data-t="${b.dataset.t}"]`).focus()});
+$('testR').addEventListener('click',()=>{forceRain=!forceRain;$('testR').textContent=forceRain?'إيقاف تجربة المطر':'تجربة شكل المطر';wxRender()});
 $('testA').addEventListener('click',()=>{openP(false);showAdhan(0,5000)});
 $('modes').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;S.mode=b.dataset.m;save();applyS();$('modes').querySelector(`[data-m="${b.dataset.m}"]`).focus()});
 const openP=o=>{$('panel').hidden=!o;document.body.style.cursor=o?'auto':'none';if(o)$('opts').firstElementChild.focus();else $('gear').focus()};
@@ -313,14 +326,18 @@ const ICON={
  rain:'<path d="M7 14a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 4.5a4.8 4.8 0 0 1 .5 9.5z"/><path d="M8 17v3M12 17v3M16 17v3"/>',
  dust:'<path d="M4 8h13a2.5 2.5 0 1 0-2.5-2.5M3 12h16a2.5 2.5 0 1 1-2.5 2.5M5 16h9a2 2 0 1 1-2 2"/>'
 };
+let forceRain=false;
+(function(){const r=$('rain');for(let i=0;i<28;i++){const d=document.createElement('i');d.style.left=(Math.random()*100)+'%';d.style.animationDuration=(1.3+Math.random()*1.1)+'s';d.style.animationDelay=(-Math.random()*2.4)+'s';r.appendChild(d)}})();
 function wxRender(){
-  const w=DATA.wx,el=$('wx');if(!el||!S.weather)return;
+  const w=DATA.wx,el=$('wx');if(!el)return;
+  document.body.classList.toggle('rainy',!!(S.rain&&(forceRain||(w&&w.c==='rain'&&Date.now()-Date.parse(w.at+':00+03:00')<3*36e5))));
+  if(!S.weather)return;
   const age=w?Date.now()-Date.parse(w.at+':00+03:00'):1e12;
   if(!w||age>9*36e5){el.hidden=true;return}
   el.hidden=false;
   const tt=times(Date.now()),n=Date.now(),night=n<tt[0]||n>tt[3];
-  const c=(night&&(w.c==='clear'))?'night':w.c;
-  el.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[c]||ICON.cloud}</svg><span>${Math.round(w.t)}°</span>`;
+  const c=forceRain?'rain':(night&&(w.c==='clear'))?'night':w.c;
+  el.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[c]||ICON.cloud}</svg><span>${Math.round(w.t)}°</span>`+(document.body.classList.contains('rainy')?'<span style="font-size:.7em;direction:rtl">ممطر</span>':'');
 }
 // ===== تنبيه الأذان =====
 let adTimer;const dismissed=new Set();
@@ -365,7 +382,7 @@ $('rf').addEventListener('click',loadData);
 let lastDay='';
 function render(){
   const now=Date.now(),{h,m}=parts(now),tt=times(now),day=dayFmt.format(now);
-  $('clock').innerHTML=(h%12||12)+':'+p2(m)+'<small>'+(h<12?'ص':'م')+'</small>';
+  $('clock').innerHTML='<small>'+(h<12?'ص':'م')+'</small><span>'+(h%12||12)+':'+p2(m)+'</span>';
   if(day!==lastDay){
     lastDay=day;
     $('dates').textContent=greg.format(now)+'  ·  '+hijri.format(now);
