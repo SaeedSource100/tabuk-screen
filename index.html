@@ -136,6 +136,7 @@ main{text-align:center}
 #tools{position:fixed;top:2vh;left:2vw;z-index:5;display:flex;gap:.8vw;align-items:center}
 #tools a,#tools button{width:min(4.2vw,6.4vh);height:min(4.2vw,6.4vh);border-radius:50%;border:1px solid #ffffff55;background:#0a121a99;color:#fff;font-size:min(2.4vw,3.8vh);display:grid;place-items:center;text-decoration:none;opacity:.4;transition:opacity .3s;padding:0}
 #yt{background:#e02424!important;border-color:#e02424!important}
+#ar{background:#7c3aed!important;border-color:#7c3aed!important;font-weight:800;font-size:calc(min(1.8vw,2.8vh))!important}
 #tools a:hover,#tools button:hover,#tools a:focus-visible,#tools button:focus-visible{opacity:1;outline:2px solid var(--sand);outline-offset:3px}
 @media (max-width:700px){header{flex-direction:column;padding-left:0;padding-top:6vh}}
 #wx{display:flex;justify-content:center;align-items:flex-start;gap:calc(min(3.4vw,4.6vh)*var(--fs));direction:rtl;min-height:calc(min(7.6vh,6vw)*var(--fs));margin-bottom:.6vh}
@@ -204,6 +205,7 @@ body[data-font=mixed] :is(#clock,#hd b,#grid .p em,#ah .nm,#fx>.t,.lb){font-fami
 <div id="adhan" hidden><small>حان الآن موعد</small><h1 id="an"></h1><b id="at"></b></div>
 <div id="tools">
   <a id="yt" href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.google.android.youtube.tv;end" aria-label="يوتيوب (الرقم 1)" title="الرقم 1">&#9654;</a>
+  <a id="ar" href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.aromatvprotwo.aromatvproiptvbox;end" aria-label="AROMA TV (الرقم 2)" title="الرقم 2">TV</a>
   <button id="rf" aria-label="تحديث البيانات">&#8635;</button>
   <button id="gear" aria-label="الإعدادات">&#9881;</button>
 </div>
@@ -230,7 +232,7 @@ const LOOKS=[['boxes','بطاقات'],['clean','بدون بطاقات']];
 const FONTS=[['sans','نظيف'],['display','عناوين'],['text','كتابي'],['mixed','مختلط']];
 const FSZ=[[.88,'صغير'],[1,'عادي'],[1.12,'كبير'],[1.25,'كبير جداً']];
 const THEMES=[['blue','أزرق ليلي','#1b3a5c'],['teal','أخضر مزرق','#1b4a47'],['warm','رمادي دافئ','#4a4640']];
-const SEC=[['news','الأخبار','mode',MODES],['prayers','أوقات الصلاة','pstyle',PST],['salary','مواعيد الراتب'],['weather','الطقس'],['matches','مباريات روشن'],['ahli','بطاقة الأهلي'],['europe','مباريات أوروبا'],['apps','زر يوتيوب']];
+const SEC=[['news','الأخبار','mode',MODES],['prayers','أوقات الصلاة','pstyle',PST],['salary','مواعيد الراتب'],['weather','الطقس'],['matches','مباريات روشن'],['ahli','بطاقة الأهلي'],['europe','مباريات أوروبا'],['apps','أزرار يوتيوب وAROMA']];
 const SPEC=[['rain','شكل المطر','rain'],['friday','وضع الجمعة','fri'],['adhan','تنبيه الأذان','adhan']];
 // يحاول الحجم المختار، وإذا لم يتسع يصغّره تلقائياً حتى يتسع المحتوى كله
 let FSE=1;
@@ -245,6 +247,7 @@ function fitFs(){
 function applyS(){
   document.body.dataset.theme=S.theme;document.body.dataset.font=S.font;document.body.dataset.look=S.look;$('grid').dataset.ps=S.pstyle;
   for(const k in TARGET)$(TARGET[k]).hidden=!S[k];
+  $('ar').hidden=!S.apps;
   $('next').hidden=!(S.countdown&&S.prayers);
   $('sports').hidden=!(S.matches||S.ahli||S.europe);
   buildPanel();setupNews();schedRefresh();if(typeof wxRender==='function')wxRender();fitFs();
@@ -292,6 +295,7 @@ document.addEventListener('keydown',e=>{
   const dg=e.key==='0'||e.code==='Digit0'||e.code==='Numpad0';
   if(dg){e.preventDefault();openP($('panel').hidden);return}
   if((e.key==='1'||e.code==='Digit1'||e.code==='Numpad1')&&$('panel').hidden&&S.apps){e.preventDefault();$('yt').click();return}
+  if((e.key==='2'||e.code==='Digit2'||e.code==='Numpad2')&&$('panel').hidden&&S.apps){e.preventDefault();$('ar').click();return}
   if(e.key==='Escape'||e.key==='Backspace')if(!$('panel').hidden){e.preventDefault();openP(false)}});
 window.addEventListener('resize',fitFs);
 if(document.fonts){const fr=()=>{fitFs();if(typeof updLS==='function')updLS()};document.fonts.ready.then(fr);document.fonts.addEventListener&&document.fonts.addEventListener('loadingdone',fr)}
