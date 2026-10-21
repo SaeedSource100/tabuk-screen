@@ -289,6 +289,7 @@ document.addEventListener('keydown',e=>{
   if((e.key==='1'||e.code==='Digit1'||e.code==='Numpad1')&&$('panel').hidden&&S.apps){e.preventDefault();$('yt').click();return}
   if(e.key==='Escape'||e.key==='Backspace')if(!$('panel').hidden){e.preventDefault();openP(false)}});
 window.addEventListener('resize',fitFs);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{fitFs();if(typeof updLS==='function')updLS()});
 
 // ===== الأخبار =====
 let nTimer,nAnim,ni=0;
@@ -467,7 +468,8 @@ async function loadData(){
 function updLS(){if(!$('ls'))return;
   const f=ms=>ms?t12(ms)+(parts(ms).h<12?' ص':' م'):'—';
   const g=DATA.generated?Date.parse(DATA.generated+':00+03:00'):0;
-  $('ls').textContent='آخر جلب ناجح: '+f(lastOk)+'  ·  آخر تحديث للمصدر: '+f(g);
+  const fo=[...document.fonts].some(x=>x.family.replace(/"/g,'')==='ThmanyahApp'&&x.status==='loaded');
+  $('ls').textContent='آخر جلب ناجح: '+f(lastOk)+'  ·  آخر تحديث للمصدر: '+f(g)+'  ·  الخط: '+(fo?'ثمانية ✓':'Tajawal (ثمانية لم يُحمَّل)');
 }
 function schedRefresh(){clearInterval(rT);if(+S.refresh)rT=setInterval(loadData,+S.refresh*6e4)}
 $('rf').addEventListener('click',loadData);
