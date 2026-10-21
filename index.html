@@ -29,7 +29,7 @@ body.frihide #pay,body.frihide #sports,body.frihide #news{display:none!important
 #bgp{position:fixed;left:0;right:0;top:0;height:58vh;z-index:0;pointer-events:none;background-size:cover;background-position:center;opacity:0;transition:opacity 1.6s ease;-webkit-mask-image:linear-gradient(180deg,#000 52%,transparent);mask-image:linear-gradient(180deg,#000 52%,transparent)}
 #bgp::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,12,22,.5),rgba(6,12,22,.3))}
 body.bgon #bgp{opacity:1}
-body.friday #bgp{display:none}
+body.friday #bgp,body.friday #bgn{display:none}
 #frm{display:none}
 body.frihide #frm{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:3.2vh;text-align:center;padding:0 6vw}
 #frm .du{font-size:calc(min(2.5vw,4.4vh)*var(--fs));line-height:1.9;max-width:78vw;color:var(--fg)}
@@ -214,6 +214,7 @@ body[data-font=mixed] :is(#clock,#hd b,#grid .p em,#ah .nm,#fx>.t,.lb){font-fami
   <a id="yt" href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.google.android.youtube.tv;end" aria-label="يوتيوب (الرقم 1)" title="الرقم 1">&#9654;</a>
   <a id="ar" href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.mbm_soft.aromatv;end" aria-label="AROMA TV (الرقم 2)" title="الرقم 2">TV</a>
   <button id="rf" aria-label="تحديث البيانات">&#8635;</button>
+  <button id="bgn" hidden aria-label="تغيير الخلفية"><svg viewBox="0 0 24 24" width="55%" height="55%" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
   <button id="gear" aria-label="الإعدادات">&#9881;</button>
 </div>
 <div id="panel" hidden><div id="box" role="dialog" aria-label="الإعدادات">
@@ -227,7 +228,7 @@ const DATA={"updated":"2026-10-20","news":["المملكة تقود إنشاء �
 /*DATA-END*/
 
 // ===== الإعدادات =====
-const DEF={friday:1,look:'boxes',countdown:1,prayers:1,salary:1,matches:1,ahli:1,europe:1,news:1,apps:1,weather:1,rain:1,adhan:1,mode:'ticker',theme:'blue',pstyle:'strip',refresh:15,fs:1,font:'sans',bg:1};
+const DEF={friday:1,look:'boxes',countdown:1,prayers:1,salary:1,matches:1,ahli:1,europe:1,news:1,apps:1,weather:1,rain:1,adhan:1,mode:'ticker',theme:'blue',pstyle:'strip',refresh:15,fs:1,font:'sans',bg:1,bgint:30};
 const TARGET={countdown:'next',prayers:'grid',salary:'pay',matches:'fx',ahli:'ah',europe:'eu',news:'news',weather:'wx',apps:'yt'};
 let S;try{S={...DEF,...JSON.parse(localStorage.getItem('tabukS')||'{}')}}catch(e){S={...DEF}}
 const save=()=>{try{localStorage.setItem('tabukS',JSON.stringify(S))}catch(e){}};
@@ -237,6 +238,7 @@ const MODES=[['ticker','شريط متحرك'],['headline','عنوان يتغير
 const REF=[[0,'إيقاف'],[5,'5د'],[15,'15د'],[60,'ساعة']];
 const LOOKS=[['boxes','بطاقات'],['clean','بدون بطاقات']];
 const FONTS=[['sans','نظيف'],['display','عناوين'],['text','كتابي'],['mixed','مختلط']];
+const BGI=[[10,'10د'],[30,'30د'],[60,'ساعة']];
 const FSZ=[[.88,'صغير'],[1,'عادي'],[1.12,'كبير'],[1.25,'كبير جداً']];
 const THEMES=[['blue','أزرق ليلي','#1b3a5c'],['teal','أخضر مزرق','#1b4a47'],['warm','رمادي دافئ','#4a4640']];
 const SEC=[['news','الأخبار','mode',MODES],['prayers','أوقات الصلاة','pstyle',PST],['salary','مواعيد الراتب'],['weather','الطقس'],['matches','مباريات روشن'],['ahli','بطاقة الأهلي'],['europe','مباريات أوروبا'],['apps','أزرار يوتيوب وAROMA']];
@@ -270,7 +272,7 @@ function buildPanel(){
   $('c2').innerHTML='<div class="t">المظهر</div>'
    +`<div class="row"><span class="n">الثيم</span><span class="dots">`+THEMES.map(([v,l,c])=>`<button class="dt" data-s="theme" data-v="${v}" aria-pressed="${S.theme===v}" aria-label="${l}" style="background:${c}"></button>`).join('')+`</span></div>`
    +`<div class="row"><span class="n">الأسلوب</span>${sg('look',LOOKS)}</div>`
-   +`<div class="row"><span class="n">خلفية الطبيعة</span>${tg('bg','خلفية الطبيعة')}</div>`
+   +`<div class="row"><span class="n">خلفية الطبيعة</span>${sg('bgint',BGI)}${tg('bg','خلفية الطبيعة')}</div>`
    +`<div class="row"><span class="n">نوع الخط</span>${sg('font',FONTS)}</div>`
    +`<div class="row"><span class="n">حجم الخط</span>${sg('fs',FSZ)}<div class="sub" id="fsn"></div></div>`
    +'<div class="t">الأوضاع الخاصة</div>'
@@ -494,27 +496,29 @@ function updLS(){if(!$('ls'))return;
 function schedRefresh(){clearInterval(rT);if(+S.refresh)rT=setInterval(loadData,+S.refresh*6e4)}
 $('rf').addEventListener('click',loadData);
 
-// ===== خلفية الطبيعة (صور اختيارية: bg-clear / bg-cloud / bg-rain / bg-night .jpg) =====
-const BGS={clear:'bg-clear.jpg',cloud:'bg-cloud.jpg',rain:'bg-rain.jpg',night:'bg-night.jpg'};
-const bgOK={};let bgCur='',bgTm;
-function bgPick(){
-  const now=Date.now(),tt=times(now),w=DATA.wx,fresh=w&&Date.now()-Date.parse(w.at+':00+03:00')<9*36e5;
-  const c=forceRain?'rain':(fresh?w.c:'clear');
-  if(c==='rain')return 'rain';
-  if(now<tt[0]||now>=tt[3])return 'night';
-  return c==='cloud'?'cloud':'clear';
+// ===== خلفية الطبيعة: صور اختيارية بأسماء bg1.jpg و bg2.jpg و bg3.jpg ... (حتى 30) تتبدّل بالتسلسل =====
+let bgList=null,bgCur='',bgTm,bgTok=0,bgOff=0;
+function bgProbe(){
+  if(bgList)return bgList;
+  const ok=u=>new Promise(r=>{const i=new Image();i.onload=()=>r(u);i.onerror=()=>r(null);i.src=u});
+  const ps=[];for(let i=1;i<=30;i++)ps.push(ok('bg'+i+'.jpg'));
+  return bgList=Promise.all(ps).then(a=>a.filter(Boolean));
 }
-function bgRender(){
-  const el=$('bgp'),B=document.body.classList;if(!el)return;
-  if(!S.bg){B.remove('bgon');return}
-  const k=bgPick();if(k===bgCur&&B.contains('bgon'))return;
-  if(bgOK[k]===false){B.remove('bgon');bgCur='';return}
-  const im=new Image();
-  im.onload=()=>{bgOK[k]=true;const go=()=>{el.style.backgroundImage='url('+BGS[k]+')';bgCur=k;B.add('bgon')};
-    if(B.contains('bgon')&&bgCur&&bgCur!==k){B.remove('bgon');clearTimeout(bgTm);bgTm=setTimeout(go,1700)}else go()};
-  im.onerror=()=>{bgOK[k]=false;B.remove('bgon');bgCur=''};
-  im.src=BGS[k];
+async function bgRender(force){
+  const el=$('bgp'),B=document.body.classList,bn=$('bgn');if(!el)return;
+  const tok=++bgTok;
+  if(!S.bg){B.remove('bgon');if(bn)bn.hidden=true;return}
+  const list=await bgProbe();
+  if(tok!==bgTok)return;
+  if(bn)bn.hidden=list.length<2;
+  if(!list.length){B.remove('bgon');bgCur='';return}
+  const iv=(+S.bgint||30)*6e4,u=list[(Math.floor(Date.now()/iv)+bgOff)%list.length];
+  if(u===bgCur&&B.contains('bgon'))return;
+  const go=()=>{el.style.backgroundImage='url('+u+')';bgCur=u;B.add('bgon')};
+  clearTimeout(bgTm);
+  if(B.contains('bgon')&&bgCur&&bgCur!==u){B.remove('bgon');bgTm=setTimeout(go,force?900:1700)}else go();
 }
+$('bgn').addEventListener('click',()=>{bgOff++;bgRender(true)});
 // ===== الرسم الدوري =====
 let lastDay='';
 function render(){
