@@ -26,6 +26,10 @@ body[data-look=clean] #grid[data-ps=strip] .p{border-inline-start-color:transpar
 body.friday{--fg:#ece8dc;--mut:#a9c0b6;--sand:#e3c77a;--b0:#1b3a30;--b1:#12241f;--b2:#0b1814}
 body.rainy.friday{--fg:#e3eefa;--mut:#a9c2dc;--sand:#8fc1ee;--b0:#1b3352;--b1:#132235;--b2:#0c1624}
 body.frihide #pay,body.frihide #sports,body.frihide #news{display:none!important}
+#bgp{position:fixed;left:0;right:0;top:0;height:58vh;z-index:0;pointer-events:none;background-size:cover;background-position:center;opacity:0;transition:opacity 1.6s ease;-webkit-mask-image:linear-gradient(180deg,#000 52%,transparent);mask-image:linear-gradient(180deg,#000 52%,transparent)}
+#bgp::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,12,22,.5),rgba(6,12,22,.3))}
+body.bgon #bgp{opacity:1}
+body.friday #bgp{display:none}
 #frm{display:none}
 body.frihide #frm{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:3.2vh;text-align:center;padding:0 6vw}
 #frm .du{font-size:calc(min(2.5vw,4.4vh)*var(--fs));line-height:1.9;max-width:78vw;color:var(--fg)}
@@ -36,7 +40,9 @@ body.frihide #clock{font-size:calc(min(10vw,15vh)*var(--fs))}
 html,body{height:100%;margin:0}
 body{overflow:hidden;color:var(--fg);font-family:ThmanyahApp,"thmanyah sans",Tajawal,"Segoe UI",Tahoma,sans-serif;background:radial-gradient(130% 90% at 50% 0%,var(--b0) 0%,var(--b1) 55%,var(--b2) 100%);cursor:none}
 button,a{cursor:pointer;font-family:inherit}
-#stage{height:100%;display:flex;flex-direction:column;justify-content:space-between;gap:.8vh;padding:1.5vh 4vw;transition:transform 4s ease}
+#stage{height:100%;display:flex;flex-direction:column;justify-content:space-between;gap:.8vh;padding:1.5vh 4vw;transition:transform 4s ease,opacity 1s ease;opacity:0;animation:rvl 1s ease 5s forwards}
+body.ready #stage{opacity:1}
+@keyframes rvl{to{opacity:1}}
 header{display:flex;justify-content:space-between;align-items:flex-start;gap:2vw;padding-left:12vw}
 #hd{color:var(--mut);font-size:calc(min(2.2vw,3.6vh)*var(--fs))}
 #hd b{color:var(--fg);font-weight:800;font-size:1.25em;margin-inline-end:.6em}
@@ -192,6 +198,7 @@ body[data-font=mixed] :is(#clock,#hd b,#grid .p em,#ah .nm,#fx>.t,.lb){font-fami
 
 </head>
 <body>
+<div id="bgp"></div>
 <div id="rain"></div>
 <div id="stage">
   <header><div id="hd"><b>تبوك</b><span id="dates"></span><span id="fb" style="color:var(--sand)"></span></div></header>
@@ -220,7 +227,7 @@ const DATA={"updated":"2026-10-20","news":["المملكة تقود إنشاء �
 /*DATA-END*/
 
 // ===== الإعدادات =====
-const DEF={friday:1,look:'boxes',countdown:1,prayers:1,salary:1,matches:1,ahli:1,europe:1,news:1,apps:1,weather:1,rain:1,adhan:1,mode:'ticker',theme:'blue',pstyle:'strip',refresh:15,fs:1,font:'sans'};
+const DEF={friday:1,look:'boxes',countdown:1,prayers:1,salary:1,matches:1,ahli:1,europe:1,news:1,apps:1,weather:1,rain:1,adhan:1,mode:'ticker',theme:'blue',pstyle:'strip',refresh:15,fs:1,font:'sans',bg:1};
 const TARGET={countdown:'next',prayers:'grid',salary:'pay',matches:'fx',ahli:'ah',europe:'eu',news:'news',weather:'wx',apps:'yt'};
 let S;try{S={...DEF,...JSON.parse(localStorage.getItem('tabukS')||'{}')}}catch(e){S={...DEF}}
 const save=()=>{try{localStorage.setItem('tabukS',JSON.stringify(S))}catch(e){}};
@@ -250,7 +257,7 @@ function applyS(){
   $('ar').hidden=!S.apps;
   $('next').hidden=!(S.countdown&&S.prayers);
   $('sports').hidden=!(S.matches||S.ahli||S.europe);
-  buildPanel();setupNews();schedRefresh();if(typeof wxRender==='function')wxRender();fitFs();
+  bgRender();buildPanel();setupNews();schedRefresh();if(typeof wxRender==='function')wxRender();fitFs();
 }
 function buildPanel(){
   const tg=(k,l)=>`<button class="tgl" role="switch" data-k="${k}" aria-checked="${!!S[k]}" aria-label="${l}"></button>`;
@@ -263,6 +270,7 @@ function buildPanel(){
   $('c2').innerHTML='<div class="t">المظهر</div>'
    +`<div class="row"><span class="n">الثيم</span><span class="dots">`+THEMES.map(([v,l,c])=>`<button class="dt" data-s="theme" data-v="${v}" aria-pressed="${S.theme===v}" aria-label="${l}" style="background:${c}"></button>`).join('')+`</span></div>`
    +`<div class="row"><span class="n">الأسلوب</span>${sg('look',LOOKS)}</div>`
+   +`<div class="row"><span class="n">خلفية الطبيعة</span>${tg('bg','خلفية الطبيعة')}</div>`
    +`<div class="row"><span class="n">نوع الخط</span>${sg('font',FONTS)}</div>`
    +`<div class="row"><span class="n">حجم الخط</span>${sg('fs',FSZ)}<div class="sub" id="fsn"></div></div>`
    +'<div class="t">الأوضاع الخاصة</div>'
@@ -427,6 +435,7 @@ const HFMT=h=>(h%12||12)+' '+(h<12?'ص':'م');
 function wxRender(){
   const w=DATA.wx,el=$('wx');if(!el)return;
   document.body.classList.toggle('rainy',!!(S.rain&&(forceRain||(w&&w.c==='rain'&&Date.now()-Date.parse(w.at+':00+03:00')<3*36e5))));
+  bgRender();
   if(!S.weather)return;
   const age=w?Date.now()-Date.parse(w.at+':00+03:00'):1e12;
   if(!w||age>9*36e5){el.innerHTML='';return}
@@ -439,6 +448,7 @@ function wxRender(){
   hs.forEach(x=>{const ms=Date.parse(x.t+':00+03:00'),hh=+x.t.slice(11,13),rain=x.c==='rain'||x.p>=40;
     h+=`<div class="h${rain&&x.p>=40?' rn':''}"><span>${HFMT(hh)}</span>${ic(x.c,ms)}<b>${Math.round(x.tt)}°</b><em>${x.p>=40?'مطر '+x.p+'%':''}</em></div>`});
   el.innerHTML=h;
+  bgRender();
 }
 // ===== تنبيه الأذان =====
 let adTimer;const dismissed=new Set();
@@ -484,6 +494,27 @@ function updLS(){if(!$('ls'))return;
 function schedRefresh(){clearInterval(rT);if(+S.refresh)rT=setInterval(loadData,+S.refresh*6e4)}
 $('rf').addEventListener('click',loadData);
 
+// ===== خلفية الطبيعة (صور اختيارية: bg-clear / bg-cloud / bg-rain / bg-night .jpg) =====
+const BGS={clear:'bg-clear.jpg',cloud:'bg-cloud.jpg',rain:'bg-rain.jpg',night:'bg-night.jpg'};
+const bgOK={};let bgCur='',bgTm;
+function bgPick(){
+  const now=Date.now(),tt=times(now),w=DATA.wx,fresh=w&&Date.now()-Date.parse(w.at+':00+03:00')<9*36e5;
+  const c=forceRain?'rain':(fresh?w.c:'clear');
+  if(c==='rain')return 'rain';
+  if(now<tt[0]||now>=tt[3])return 'night';
+  return c==='cloud'?'cloud':'clear';
+}
+function bgRender(){
+  const el=$('bgp'),B=document.body.classList;if(!el)return;
+  if(!S.bg){B.remove('bgon');return}
+  const k=bgPick();if(k===bgCur&&B.contains('bgon'))return;
+  if(bgOK[k]===false){B.remove('bgon');bgCur='';return}
+  const im=new Image();
+  im.onload=()=>{bgOK[k]=true;const go=()=>{el.style.backgroundImage='url('+BGS[k]+')';bgCur=k;B.add('bgon')};
+    if(B.contains('bgon')&&bgCur&&bgCur!==k){B.remove('bgon');clearTimeout(bgTm);bgTm=setTimeout(go,1700)}else go()};
+  im.onerror=()=>{bgOK[k]=false;B.remove('bgon');bgCur=''};
+  im.src=BGS[k];
+}
 // ===== الرسم الدوري =====
 let lastDay='';
 function render(){
@@ -511,7 +542,9 @@ function render(){
   const tm=Math.max(0,Math.ceil((target-now)/6e4)),hh=Math.floor(tm/60),mm=tm%60;
   $('next').innerHTML='متبقي على صلاة <b>'+nm(idx)+'</b> <span id="cd">'+p2(hh)+':'+p2(mm)+'</span>';
 }
-applyS();wxRender();render();loadData();setInterval(render,1000);setInterval(()=>{fxRender();ahRender();euRender();fitFs()},6e4);
+applyS();wxRender();render();
+Promise.race([Promise.all([loadData(),document.fonts?document.fonts.ready:0]),new Promise(r=>setTimeout(r,3500))]).then(()=>requestAnimationFrame(()=>{fitFs();bgRender();document.body.classList.add('ready')}));
+setInterval(render,1000);setInterval(()=>{fxRender();ahRender();euRender();fitFs();bgRender()},6e4);
 setInterval(()=>{const r=()=>Math.round((Math.random()-.5)*20);$('stage').style.transform=`translate(${r()}px,${r()}px)`},60000);
 </script>
 </body>
