@@ -142,9 +142,11 @@ body[data-mode=glass] #pr{background:var(--card);backdrop-filter:blur(var(--blur
 #a2{background:linear-gradient(160deg,#8d55f0,#5e2fc2)}
 #a3{background:linear-gradient(160deg,#1fa37a,#0d6b50)}
 body.frihide #pr,body.frihide #hm #wxb,body.frihide #lines{display:none}
-#frm{display:none;position:absolute;left:3rem;right:36rem;top:5rem;text-align:center}
-body.frihide #frm{display:block}
-#frm .du{font-size:1.9rem;line-height:2;color:var(--fg)}
+#frm{display:none;position:absolute;left:30rem;right:34rem;top:9rem;text-align:center}
+body.friday #frm{display:block}
+body.friday .kahf{display:none!important}
+body.friday #pr[data-ps=pills]~#frm{top:16rem}
+#frm .du{font-size:1.6rem;line-height:2;color:var(--fg)}
 #frm .kh{margin-top:1.4rem;padding-top:1.1rem;border-top:.07rem solid var(--line);font-size:1.5rem;color:var(--gold)}
 .kahf{display:none;color:var(--gold);margin-top:.5rem;font-size:1rem}
 body.frikahf .kahf{display:block}
@@ -269,6 +271,7 @@ body.matchpage #p-sports .mt{display:block}
 .st.y .why{color:#fde68a}
 #toast{position:fixed;bottom:2.2rem;left:50%;transform:translateX(-50%) translateY(2rem);background:#000000cc;border:.07rem solid var(--gold);color:#fff;padding:.6rem 1.6rem;border-radius:99px;font-size:1.05rem;opacity:0;transition:.3s;z-index:9;pointer-events:none}
 #toast.on{opacity:1;transform:translateX(-50%)}
+.row.mu{flex-wrap:wrap;row-gap:.55rem}.row.mu .n{flex-basis:100%}.row.mu .gp{margin-inline-end:.4rem}.gp{display:inline-flex;align-items:center;gap:.5rem;color:var(--mut);font-size:.88rem}
 </style>
 </head>
 <body data-page="home" data-mode="pure" data-theme="blue" data-dim="mid" data-motion="off" class="nophoto">
@@ -297,8 +300,8 @@ body.matchpage #p-sports .mt{display:block}
       <div id="pr" class="tx"></div>
       <div id="frm"><div class="du">اللهم صلِّ على محمد وعلى آل محمد، كما صليتَ على إبراهيم، وعلى آل إبراهيم، إنك حميد مجيد، اللهم بارك على محمد، وعلى آل محمد كما باركتَ على إبراهيم، وعلى آل إبراهيم إنك حميد مجيد</div><div class="kh">لا تنسَ قراءة سورة الكهف</div></div>
       <div id="apps">
-        <a class="ap" id="a1" href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.google.android.youtube.tv;end"><span class="no">1</span>▶ YouTube</a>
-        <a class="ap" id="a2" href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.mbm_soft.aromatv;end"><span class="no">2</span>AROMA TV</a>
+        <a class="ap" id="a1" href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.google.android.youtube.tv;end"><span class="no">1</span>يوتيوب</a>
+        <a class="ap" id="a2" href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.mbm_soft.aromatv;end"><span class="no">2</span>أروما</a>
         <a class="ap" id="a3" href="#" hidden><span class="no">3</span>ثمانية</a>
       </div>
     </section>
@@ -346,31 +349,29 @@ const THEMES=[['blue','أزرق ليلي','#233a5c'],['teal','أخضر مزرق'
 const seg=k=>`<span class="seg">`+SEGS[k].map(([v,l])=>`<button class="sg" data-s="${k}" data-v="${v}" aria-pressed="false">${l}</button>`).join('')+`</span>`;
 const tg=k=>`<button class="tgl" role="switch" data-k="${k}" aria-checked="false" aria-label="${k}"></button>`;
 const rw=(n,c,sub)=>`<div class="row"><span class="n">${n}${sub?`<small>${sub}</small>`:''}</span>${c}</div>`;
-const tb=(t,l)=>`<button class="btn" data-test="${t}">${l||'تجربة'}</button>`;
+const tb=(t,l,d)=>`<button class="btn" data-test="${t}" data-l="${l||'تجربة'}">${l||'تجربة'}</button>`;
+const gp=(l,c)=>`<span class="gp">${l?`<span>${l}</span>`:''}${c}</span>`;
+const mu=(n,groups,sub)=>`<div class="row mu"><span class="n">${n}${sub?`<small>${sub}</small>`:''}</span>${groups}</div>`;
+const cps=a=>`<span class="chk">`+a.map(([k,l])=>`<button class="cp" role="checkbox" data-k="${k}" aria-checked="false">${l}</button>`).join('')+`</span>`;
 function buildSettings(){
   $('c1').innerHTML=
    `<div class="sec"><h3>التصميم والمظهر</h3>`
    +rw('التصميم',seg('design'))+rw('النمط',seg('mode'))
-   +rw('تعتيم الخلفية',seg('dim'))+rw('حركة الخلفية',seg('motion'))
-   +rw('صور الخلفية',seg('bgint')+tg('bg'))
-   +rw('لون الخلفية',`<span class="dots">`+THEMES.map(([v,l,c])=>`<button class="dt" data-s="theme" data-v="${v}" aria-pressed="false" aria-label="${l}" style="background:${c}"></button>`).join('')+`</span>`,'يظهر عند عدم وجود صورة')
+   +mu('الخلفية',gp('الصور',tg('bg'))+gp('التبديل',seg('bgint'))+gp('التعتيم',seg('dim'))+gp('الحركة',seg('motion'))+gp('اللون عند عدم وجود صورة',`<span class="dots">`+THEMES.map(([v,l,c])=>`<button class="dt" data-s="theme" data-v="${v}" aria-pressed="false" aria-label="${l}" style="background:${c}"></button>`).join('')+`</span>`))
    +rw('نوع الخط',seg('font'))+rw('حجم الخط',seg('fs'))+`</div>`
    +`<div class="sec"><h3>الأقسام</h3>`
-   +rw('الرياضة',`<span class="chk"><button class="cp" role="checkbox" data-k="sRosh" aria-checked="false">روشن</button><button class="cp" role="checkbox" data-k="sAhli" aria-checked="false">الأهلي</button><button class="cp" role="checkbox" data-k="sEu" aria-checked="false">أوروبا</button></span>`)
-   +rw('الطقس',seg('weather'))+rw('الأخبار',tg('news'))
-   +rw('أوقات الصلاة',seg('pstyle')+tg('prayers'))+rw('العد التنازلي للصلاة',tg('countdown'))
-   +rw('مواعيد الراتب',tg('salary'))+rw('أزرار التطبيقات',tg('apps'))
-   +rw('وضع الجمعة',tg('friday'))+rw('وضع المطر',tg('rain'))+rw('مشهد الركل عند فوز الأهلي',tg('kick'))+`</div>`;
+   +rw('الرياضة',cps([['sRosh','روشن'],['sAhli','الأهلي'],['sEu','أوروبا']]))
+   +rw('الطقس',seg('weather'))
+   +rw('أوقات الصلاة',seg('pstyle')+tg('prayers'))
+   +rw('إظهار',cps([['news','الأخبار'],['salary','الراتب'],['apps','التطبيقات'],['countdown','عد الصلاة']]))
+   +rw('الأوضاع الخاصة',cps([['friday','الجمعة'],['rain','المطر'],['kick','مشهد الركل']]),'تعمل تلقائياً عند توفر شروطها')+`</div>`;
   $('c2').innerHTML=
-   `<div class="sec"><h3>حالة الاتصال</h3><div id="stl"></div>${rw('تحديث الآن',`<button class="btn" id="rf2">تحديث</button>`)}</div>`
-   +`<div class="sec"><h3>تنبيه موعد الصلاة</h3>`+rw('التنبيه',seg('alert'))+rw('مستوى الصوت',seg('vol'))
-   +rw('تجربة التنبيه',tb('alert'),'يعمل الصوت مع «إشعار + صوت» وأي زر يوقفه')+`</div>`
+   `<div class="sec"><h3>حالة الاتصال</h3><div id="stl"></div>`
+   +mu('تحديث وتجارب',gp('',`<button class="btn" id="rf2">تحديث الآن</button>`)+gp('',tb('fresh','لون المؤشر'))+gp('',tb('off','انقطاع الإنترنت')),'اللون يتبدّل: أخضر ← أصفر ← أحمر ← الحقيقي')+`</div>`
+   +`<div class="sec"><h3>تنبيه موعد الصلاة</h3>`
+   +mu('التنبيه',gp('',seg('alert'))+gp('الصوت',seg('vol'))+gp('',tb('alert','تجربة')),'أي زر يوقف الأذان')+`</div>`
    +`<div class="sec"><h3>تجربة العروض</h3>`
-   +rw('لون مؤشر الحداثة',tb('fresh','تغيير'),'أخضر ← أصفر ← أحمر ← الوضع الحقيقي')
-   +rw('انقطاع الإنترنت',tb('off'),'يعرض آخر بيانات محفوظة')
-   +rw('صفحة الجمعة',tb('fri'))+rw('وضع المطر',tb('rain'))
-   +rw('صفحة الأهلي وقت المباراة',tb('match'),'مباراة مباشرة تجريبية')
-   +rw('مبروك الفوز ومشهد الركل',tb('win'))+`</div>`
+   +mu('عروض لا تظهر إلا وقت الحدث',gp('',tb('fri','الجمعة'))+gp('',tb('rain','المطر'))+gp('',tb('match','مباراة مباشرة'))+gp('',tb('win','مبروك الفوز')),'اضغط مرة للتشغيل ومرة للإيقاف')+`</div>`
    +`<div class="sec"><h3>النظام</h3>`+rw('تحديث البيانات تلقائياً',seg('refresh'))
    +rw('استعادة الإعدادات الافتراضية',`<button class="btn danger" id="rst">استعادة</button>`)+`</div>`;
   $('rf2').onclick=()=>loadData(true);
@@ -381,7 +382,7 @@ function syncSettings(){
   $$('[data-s]').forEach(b=>b.setAttribute('aria-pressed',String(String(S[b.dataset.s])===b.dataset.v)));
   $$('[data-k]').forEach(b=>b.setAttribute('aria-checked',String(!!S[b.dataset.k])));
   const T={fri:forceFri,rain:forceRain,match:forceMatch==='live',win:forceMatch==='win',off:forceOff,fresh:!!forceFresh};
-  $$('[data-test]').forEach(b=>{const on=!!T[b.dataset.test];b.classList.toggle('on',on);if(b.dataset.test!=='fresh'&&b.dataset.test!=='alert')b.textContent=on?'إيقاف':'تجربة'});
+  $$('[data-test]').forEach(b=>{const on=!!T[b.dataset.test];b.classList.toggle('on',on);if(b.dataset.test!=='fresh'&&b.dataset.test!=='alert')b.textContent=on?'إيقاف':(b.dataset.l||'تجربة')});
 }
 function applyS(){
   const B=document.body;
@@ -490,7 +491,7 @@ function modes(){
   const now=Date.now(),tt=times(now),day=dayFmt.format(now);
   const [y,mo,d]=day.split('-').map(Number),isF=new Date(Date.UTC(y,mo-1,d)).getUTCDay()===5;
   FRI=forceFri||(!!S.friday&&isF);
-  HIDE=FRI&&(forceFri||(now>=tt[0]&&now<tt[1]+36e5));KAHF=FRI&&!HIDE&&now>=tt[1]+36e5&&now<tt[3];
+  HIDE=false;KAHF=FRI&&!HIDE&&now>=tt[1]+36e5&&now<tt[3];
   const w=WXD(),wage=w?now-Date.parse(w.at+':00+03:00'):1e12;
   RAIN=!!(S.rain&&(forceRain||(w&&w.c==='rain'&&wage<3*36e5)));
   const B=document.body.classList;
@@ -720,11 +721,17 @@ function renderSports(){
   if(!(S.sRosh||S.sAhli||S.sEu)||HIDE)return;
   const B=document.body.classList,M=ahliMatch();
   const wasMatch=B.contains('matchpage');
-  B.toggle('matchpage',!!M&&!!S.sAhli);
-  if(M&&S.sAhli){renderMatch(M);return}
+  if(!M)MPOFF=false;
+  let tm=$('tomatch');
+  if(!tm){tm=document.createElement('button');tm.id='tomatch';tm.className='btn';tm.textContent='⚽ صفحة المباراة';tm.style.cssText='position:absolute;left:0;top:-.2rem;z-index:3;display:none';tm.onclick=()=>{MPOFF=false;lastMt='';renderSports();tm.blur();const x=$$('.tab').find(e=>e.dataset.p==='sports');x&&x.focus()};$('p-sports').appendChild(tm)}
+  const show=!!M&&!!S.sAhli&&!MPOFF;
+  B.toggle('matchpage',show);
+  tm.style.display=(M&&S.sAhli&&MPOFF)?'block':'none';
+  if(show){renderMatch(M);return}
   if(wasMatch)resetScene();
   renderGrid();renderRank();
 }
+let MPOFF=false;
 function wdOf(d){return dLabel(d)}
 function renderGrid(){
   const AH=DATA.ahli||{},cols=[];
@@ -788,7 +795,8 @@ function renderMatch(M){
   const hadScene=$('stage2').style.display==='block';
   if(hadScene&&html===lastMtHtml)return;
   lastMt=key;lastMtHtml=html;
-  $('mt').innerHTML=html+`<button id="rp" class="btn" style="display:none"><span>↺</span> إعادة الحركة</button>`;
+  $('mt').innerHTML=html+`<button id="mback" class="btn" style="position:absolute;left:0;top:-.2rem">‹ الرياضة</button><button id="rp" class="btn" style="display:none"><span>↺</span> إعادة الحركة</button>`;
+  $('mback').onclick=()=>{MPOFF=true;resetScene();lastMt='';renderSports();const x=$$('.tab').find(e=>e.dataset.p==='sports');x&&x.focus()};
   $('rp').onclick=()=>playScene(M,true);
   if(win&&S.kick){
     let played='';try{played=localStorage.getItem('tabukK')||''}catch(e){}
