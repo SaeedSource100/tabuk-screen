@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>شاشة تبوك</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;800&display=swap" rel="stylesheet">
+<style>
+:root{--fg:#e6ebf0;--mut:#a9b8c4;--sand:#9cc2d9;--card:#ffffff0e;--line:#ffffff1f;--b0:#1e2c3d;--b1:#16222f;--b2:#0f1822}
+body[data-theme=teal]{--fg:#f1eadb;--mut:#b9c3cf;--sand:#e8b865;--b0:#1d2f3a;--b1:#142430;--b2:#0e1a23}
+body[data-theme=warm]{--fg:#ece8e1;--mut:#b8b3aa;--sand:#d8b98a;--b0:#2a2d33;--b1:#23262b;--b2:#1a1c20}
+body.rainy{--fg:#e3eefa;--mut:#a9c2dc;--sand:#8fc1ee;--b0:#1b3352;--b1:#132235;--b2:#0c1624}
+body.rainy #clock{color:#cfe3f7}
+#rain{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}
+body.rainy #rain{display:block}
+#rain i{position:absolute;top:-6vh;width:2px;height:4vh;border-radius:1px;background:#9cc8f0;opacity:.35;animation:rf linear infinite}
+@keyframes rf{to{transform:translateY(112vh)}}
+#stage{position:relative;z-index:1}
+body[data-look=clean] #grid[data-ps=strip],body[data-look=clean] #pay,body[data-look=clean] #sports>section,body[data-look=clean] #news{background:none;border:0;border-radius:0}
+body[data-look=clean] #grid[data-ps=strip],body[data-look=clean] #pay,body[data-look=clean] #sports,body[data-look=clean] #news{border-top:1px solid #ffffff1c;padding-top:1.2vh}
+body[data-look=clean] #pay{padding:1.2vh 4vw 0}
+body[data-look=clean] #sports{gap:0}
+body[data-look=clean] #sports>section{max-width:none;padding:0 1.6vw}
+body[data-look=clean] #sports>section+section{border-inline-start:1px solid #ffffff1c}
+body[data-look=clean] #grid[data-ps=strip] .p{border-inline-start-color:transparent}
+body.friday{--fg:#ece8dc;--mut:#a9c0b6;--sand:#e3c77a;--b0:#1b3a30;--b1:#12241f;--b2:#0b1814}
+body.rainy.friday{--fg:#e3eefa;--mut:#a9c2dc;--sand:#8fc1ee;--b0:#1b3352;--b1:#132235;--b2:#0c1624}
+body.frihide #pay,body.frihide #sports,body.frihide #news{display:none!important}
+#bgp{position:fixed;left:0;right:0;top:0;height:58vh;z-index:0;pointer-events:none;background-size:cover;background-position:center;opacity:0;transition:opacity 1.6s ease;-webkit-mask-image:linear-gradient(180deg,#000 52%,transparent);mask-image:linear-gradient(180deg,#000 52%,transparent)}
+#bgp::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,12,22,.5),rgba(6,12,22,.3))}
+body.bgon #bgp{opacity:1}
+body.friday #bgp,body.friday #bgn{display:none}
+#frm{display:none}
+body.frihide #frm{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:3.2vh;text-align:center;padding:0 6vw}
+#frm .du{font-size:calc(min(2.5vw,4.4vh)*var(--fs));line-height:1.9;max-width:78vw;color:var(--fg)}
+#frm .kh{font-size:calc(min(1.9vw,3.3vh)*var(--fs));color:var(--sand);padding-top:2.2vh;border-top:1px solid var(--line);min-width:30vw}
+body.frihide #clock{font-size:calc(min(10vw,15vh)*var(--fs))}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{overflow:hidden;color:var(--fg);font-family:ThmanyahApp,"thmanyah sans",Tajawal,"Segoe UI",Tahoma,sans-serif;background:radial-gradient(130% 90% at 50% 0%,var(--b0) 0%,var(--b1) 55%,var(--b2) 100%);cursor:none}
+button,a{cursor:pointer;font-family:inherit}
+#stage{height:100%;display:flex;flex-direction:column;justify-content:space-between;gap:.8vh;padding:1.5vh 4vw;transition:transform 4s ease,opacity 1s ease;opacity:0;animation:rvl 1s ease 5s forwards}
+body.ready #stage{opacity:1}
+@keyframes rvl{to{opacity:1}}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:2vw;padding-left:12vw}
+#hd{color:var(--mut);font-size:calc(min(2.2vw,3.6vh)*var(--fs))}
+#hd b{color:var(--fg);font-weight:800;font-size:1.25em;margin-inline-end:.6em}
+#sports{display:flex;gap:1.4vw;align-items:stretch;justify-content:center;min-height:0}
+#sports>section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1vh 1.2vw;min-width:0}
+#fx,#eu{display:flex;flex-direction:column}
+#fx>.m,#eu>.e{flex:1 1 0;max-height:9vh;padding:.4vh 0}
+#sports>section{flex:1 1 0;max-width:min(30vw,540px)}
+#sports h3{margin:0 0 .5vh;font-size:calc(min(1.5vw,2.6vh)*var(--fs));color:var(--sand);font-weight:800}
+#pay{display:flex;align-items:stretch;gap:2vw;padding:1vh 2vw;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.s{flex:1;min-width:0}
+.pv{width:1px;background:var(--line);flex:none}
+.s .t{display:flex;justify-content:space-between;align-items:baseline;gap:1vw}
+.s span{color:var(--mut);font-size:calc(min(1.6vw,2.7vh)*var(--fs))}
+.s b{font-weight:800;font-size:calc(min(2vw,3.6vh)*var(--fs));line-height:1.2;color:var(--sand)}
+.s .bar{height:max(5px,.7vh);border-radius:99px;background:#ffffff1c;margin:.5vh 0 .3vh;overflow:hidden}
+.s .bar i{display:block;height:100%;background:var(--sand);border-radius:99px}
+.s small{color:var(--mut);font-size:calc(min(1.3vw,2.2vh)*var(--fs))}
+main{text-align:center}
+#clock{direction:ltr;display:flex;justify-content:center;align-items:baseline;font-weight:300;font-size:calc(min(7vw,9.6vh)*var(--fs));line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+#clock span{position:relative}
+#clock small{position:absolute;right:100%;bottom:.12em;margin-right:.25em;font-size:.22em;color:var(--sand);font-weight:500;letter-spacing:0}
+#next{margin-top:1vh;font-size:calc(min(2.6vw,4.2vh)*var(--fs));color:var(--mut)}
+#next b{color:var(--sand);font-weight:800}
+#cd{direction:ltr;display:inline-block;color:var(--fg);font-variant-numeric:tabular-nums}
+#grid{display:grid;grid-template-columns:repeat(5,1fr);position:relative}
+.p{text-align:center;min-width:0}
+.p span{display:block;color:var(--mut);font-size:max(11px,calc(min(1.5vw,2.6vh)*var(--fs)))}
+.p em{font-style:normal;direction:ltr;display:block;font-size:max(15px,calc(min(2.7vw,4.6vh)*var(--fs)));font-weight:500;margin-top:.1vh;font-variant-numeric:tabular-nums}
+.p.past{opacity:.6}
+.p.on{opacity:1}
+.p.on span,.p.on em{color:var(--sand)}
+.p.on em{font-weight:800}
+.dot{display:none}
+#grid[data-ps=strip]{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.2vh 0}
+#grid[data-ps=strip] .p{border-inline-start:1px solid var(--line);padding:.4vh .5vw}
+#grid[data-ps=strip] .p:first-child{border-inline-start:0}
+#grid[data-ps=line]{padding:0 0 .5vh}
+#grid[data-ps=line]::before,#grid[data-ps=line]::after{content:"";position:absolute;top:.65vh;right:10%;height:2px;border-radius:2px}
+#grid[data-ps=line]::before{left:10%;background:#ffffff26}
+#grid[data-ps=line]::after{width:var(--pg,0%);background:var(--sand)}
+#grid[data-ps=line] .dot{display:block;position:relative;z-index:1;width:1.5vh;height:1.5vh;margin:0 auto 1.2vh;border-radius:50%;box-sizing:border-box;background:var(--b1);border:2px solid #ffffff45}
+#grid[data-ps=line] .p.past .dot{background:var(--sand);border-color:var(--sand)}
+#grid[data-ps=line] .p.on .dot{background:var(--b1);border-color:var(--sand);box-shadow:0 0 0 .5vh #ffffff14}
+#grid[data-ps=pills]{display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:1.2vw}
+#grid[data-ps=pills] .p{flex:none;background:var(--card);border-radius:99px;padding:1vh 1.8vw}
+#grid[data-ps=pills] .p em{font-size:max(13px,calc(min(2.6vw,4.4vh)*var(--fs)))}
+#grid[data-ps=pills] .p.on{background:var(--sand);padding:1.5vh 2.6vw}
+#grid[data-ps=pills] .p.on span,#grid[data-ps=pills] .p.on em{color:var(--b2)}
+#grid[data-ps=pills] .p.on em{font-size:max(16px,calc(min(3.6vw,6vh)*var(--fs)))}
+#fx{flex:1;max-width:720px;padding:1vh 1.6vw;background:var(--card);border:1px solid var(--line);border-radius:16px}
+#fx h3{margin:0 0 .6vh;font-size:calc(min(1.9vw,3vh)*var(--fs));color:var(--sand);font-weight:800}
+.m{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.9vw;padding:.3vh 0;font-size:calc(min(1.5vw,2.7vh)*var(--fs));border-top:1px solid #ffffff12}
+.m:first-of-type{border-top:0}
+.m .t{white-space:nowrap;direction:ltr;color:var(--sand);font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.m .pr{display:flex;justify-content:center;align-items:center;gap:.5em;white-space:nowrap}
+.m .sc{direction:ltr;text-align:center;font-weight:800;font-variant-numeric:tabular-nums;color:var(--mut)}
+.m .st{font-size:.66em;color:var(--mut);text-align:left;white-space:nowrap}
+.m.live .st{color:#4ade80;font-weight:800}
+.m.live .st::before{content:"";display:inline-block;width:.5em;height:.5em;border-radius:50%;background:#4ade80;margin-inline-end:.4em;animation:pl 1.2s ease-in-out infinite}
+@keyframes pl{50%{opacity:.25}}
+.m.done{opacity:.5}
+.m.done .t{color:var(--fg)}
+#ah .win{margin:-.2vh -.4vw .6vh;padding:.4vh .6vw;border-radius:10px;background:#4ade8022;border:1px solid #4ade8066;color:#4ade80;font-weight:800;font-size:calc(min(1.6vw,2.8vh)*var(--fs));text-align:center}
+#ah .win span{direction:ltr;display:inline-block;margin-inline-start:.5em}
+#ah .hd2{display:flex;align-items:center;gap:.9vw}
+#ah img{height:calc(min(5.2vh,5.2vw)*var(--fs));width:auto}
+#ah .ti{flex:1;text-align:right}
+#ah .nm{font-weight:800;font-size:calc(min(2vw,3.5vh)*var(--fs));line-height:1.15}
+#ah .sub.win2{color:#4ade80;font-weight:800;font-size:calc(min(1.5vw,2.6vh)*var(--fs))}
+#ah .sub{color:var(--mut);font-size:calc(min(1.45vw,2.5vh)*var(--fs));white-space:nowrap}
+#ah .stt{display:flex;gap:.5vw}
+#ah .stt div{min-width:calc(min(5vw,7vh)*var(--fs));padding:.4vh .5vw;border-radius:10px;background:#ffffff10;text-align:center;line-height:1.1}
+#ah .stt b{display:block;font-size:calc(min(2.2vw,3.8vh)*var(--fs));font-weight:800}
+#ah .stt div:first-child b{color:var(--sand)}
+#ah .stt small{color:var(--mut);font-size:calc(min(1vw,1.7vh)*var(--fs))}
+#ah .fm{display:flex;justify-content:center;gap:.5vw;margin:.6vh 0 .4vh;padding-bottom:.6vh;border-bottom:1px solid var(--line)}
+#ah .fm i{font-style:normal;width:calc(min(2vw,3.4vh)*var(--fs));height:calc(min(2vw,3.4vh)*var(--fs));border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:calc(min(1.2vw,2.1vh)*var(--fs));color:#0b1117}
+.W{background:#4ade80}.D{background:#9aa7b3}.L{background:#f87171}
+#ah .rs{display:flex;justify-content:space-between;align-items:center;padding:.1vh .2vw;font-size:calc(min(1.25vw,2.1vh)*var(--fs))}
+#ah .rs .sc{direction:ltr;display:inline-block;margin:0 .5em;font-weight:800;font-variant-numeric:tabular-nums}
+#ah .rs .rr{font-size:.85em;font-weight:500}
+#ah .rs.W .rr{color:#4ade80}#ah .rs.L .rr{color:#f87171}#ah .rs.D .rr{color:var(--mut)}
+#ah .rs.W,#ah .rs.D,#ah .rs.L{background:none}
+#ah .nx{margin-top:.4vh;padding:.4vh .8vw;border-radius:10px;background:#ffffff10;display:flex;justify-content:space-between;align-items:center;font-size:calc(min(1.3vw,2.2vh)*var(--fs))}
+#ah .nx span{color:var(--mut)}#ah .nx b{font-size:1.1em}
+.e{display:grid;grid-template-columns:1fr auto;gap:.8vw;align-items:center;padding:.3vh 0;font-size:calc(min(1.6vw,2.8vh)*var(--fs));border-top:1px solid #ffffff12}
+.e:first-of-type{border-top:0}
+.e small{display:block;color:var(--mut);font-size:.72em}
+.e .w{color:var(--sand);font-weight:800;text-align:left;white-space:nowrap;font-size:.9em}
+.e .x{color:var(--mut);margin:0 .4em}
+#news{display:flex;align-items:center;gap:1.4vw;padding:1.1vh 2vw;background:var(--card);border:1px solid var(--line);border-radius:14px;font-size:calc(min(2.4vw,3.8vh)*var(--fs));min-height:6vh}
+#news .lb{color:var(--sand);white-space:nowrap;font-weight:800}
+.vp{position:relative;flex:1;height:1.5em;overflow:hidden}
+.tk{position:absolute;left:0;top:0;white-space:nowrap}
+.hl{transition:opacity .6s}
+#tools{position:fixed;top:2vh;left:2vw;z-index:5;display:flex;gap:.8vw;align-items:center}
+#tools a,#tools button{width:min(4.2vw,6.4vh);height:min(4.2vw,6.4vh);border-radius:50%;border:1px solid #ffffff55;background:#0a121a99;color:#fff;font-size:min(2.4vw,3.8vh);display:grid;place-items:center;text-decoration:none;opacity:.4;transition:opacity .3s;padding:0}
+#yt{background:#e02424!important;border-color:#e02424!important}
+#ar{background:#7c3aed!important;border-color:#7c3aed!important;font-weight:800;font-size:calc(min(1.8vw,2.8vh))!important}
+#tools a:hover,#tools button:hover,#tools a:focus-visible,#tools button:focus-visible{opacity:1;outline:2px solid var(--sand);outline-offset:3px}
+@media (max-width:700px){header{flex-direction:column;padding-left:0;padding-top:6vh}}
+#wx{display:flex;justify-content:center;align-items:flex-start;gap:calc(min(3.4vw,4.6vh)*var(--fs));direction:rtl;min-height:calc(min(7.6vh,6vw)*var(--fs));margin-bottom:.6vh}
+#wx .h{text-align:center;line-height:1.2;min-width:calc(min(6vw,9.5vh)*var(--fs))}
+#wx .h span{display:block;color:var(--mut);font-size:calc(min(1.15vw,2vh)*var(--fs))}
+#wx .h svg{width:calc(min(2.5vw,4.4vh)*var(--fs));height:calc(min(2.5vw,4.4vh)*var(--fs));stroke:var(--sand);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;margin:.1vh auto}
+#wx .h b{display:block;direction:ltr;font-weight:500;font-size:calc(min(2.1vw,3.8vh)*var(--fs))}
+#wx .h em{display:block;font-style:normal;font-size:calc(min(1.3vw,2.3vh)*var(--fs));color:#8fc1ee;min-height:1.2em}
+#wx .h.now span{color:var(--sand)}
+#wx .h.now b{font-size:calc(min(2.7vw,4.8vh)*var(--fs));color:var(--fg)}
+#wx .h.rn svg,#wx .h.rn b{stroke:#8fc1ee;color:#8fc1ee}
+#wx .sp2{width:1px;align-self:stretch;background:#ffffff18}
+/* ===== لوحة الإعدادات ===== */
+:root{--fs:1}
+#panel{position:fixed;inset:0;z-index:9;background:#050b12d9;display:grid;place-items:center}
+#box{width:min(94vw,1560px);max-height:96vh;overflow:auto;background:var(--b1);border:1px solid var(--line);border-radius:22px;padding:min(2.6vh,2vw) min(2.6vw,4.6vh);font-size:min(1.4vw,2.3vh)}
+#box h2{margin:0 0 1.6vh;font-size:1.5em;display:flex;justify-content:space-between;align-items:baseline}
+#box h2 small{font-size:.6em;color:var(--mut);font-weight:400}
+#box .cols{display:grid;grid-template-columns:1.15fr 1fr;gap:min(2.4vw,4vh)}
+#box .t{color:var(--sand);font-weight:800;font-size:.9em;margin:1.2vh 0 .8vh}
+#box .t:first-child{margin-top:0}
+.row{display:flex;align-items:center;flex-wrap:wrap;gap:.6em .8em;padding:.5em .8em;margin-bottom:.5em;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.row:focus-within{border-color:var(--sand);background:#e3c77a1f;box-shadow:0 0 0 2px var(--sand)}
+.row .n{flex:1;min-width:6em}
+.row .sub:empty{display:none}
+.row .sub{flex-basis:100%;display:flex;align-items:center;gap:.6em;border-top:1px solid var(--line);padding-top:.5em;font-size:.88em;color:var(--mut)}
+.seg{display:flex;background:#00000033;border-radius:99px;padding:.15em;gap:.1em}
+.sg{font:inherit;font-size:.8em;padding:.2em .8em;border-radius:99px;border:0;background:none;color:var(--mut);font-weight:500}
+.sg[aria-pressed="true"]{background:var(--sand);color:#1a1a1a;font-weight:800}
+.tgl{width:2.4em;height:1.3em;border-radius:99px;border:0;background:#ffffff26;position:relative;flex:none;padding:0}
+.tgl::after{content:"";position:absolute;top:.15em;right:.15em;width:1em;height:1em;border-radius:50%;background:#fff;transition:.2s}
+.tgl[aria-checked="true"]{background:var(--sand)}
+.tgl[aria-checked="true"]::after{right:1.25em;background:#1a1a1a}
+.ck{width:1.1em;height:1.1em;border-radius:.3em;border:2px solid var(--mut);background:none;padding:0;color:#1a1a1a;font-size:1em;line-height:1;display:grid;place-items:center;font-weight:800;flex:none}
+.ck[aria-checked="true"]{background:var(--sand);border-color:var(--sand)}
+.tb{font:inherit;font-size:.78em;padding:.2em .9em;border-radius:99px;border:1px solid var(--line);background:none;color:var(--mut)}
+.dots{display:flex;gap:.6em}
+.dt{width:1.4em;height:1.4em;border-radius:50%;border:3px solid transparent;padding:0}
+.dt[aria-pressed="true"]{border-color:var(--sand)}
+.sg:focus-visible,.tgl:focus-visible,.ck:focus-visible,.tb:focus-visible,.dt:focus-visible,#close:focus-visible{outline:3px solid #fff;outline-offset:2px}
+#close{margin-top:1.2vh;width:100%;padding:.5em;background:var(--sand);border:0;border-radius:14px;font:inherit;font-weight:800;color:#1a1a1a}
+#ls{margin-top:.4em;font-size:.72em;color:var(--mut)}
+@media (max-width:700px){#box .cols{grid-template-columns:1fr}}
+#adhan{position:fixed;inset:0;z-index:20;background:var(--b2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vh;text-align:center}
+#adhan small{font-size:calc(min(2.6vw,4.2vh)*var(--fs));color:var(--mut)}
+#adhan h1{margin:0;font-size:calc(min(9vw,16vh)*var(--fs));font-weight:500;color:var(--sand)}
+#adhan b{font-size:calc(min(5vw,8vh)*var(--fs));font-weight:300;direction:ltr;font-variant-numeric:tabular-nums}
+#rf.spin{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+<style>/* خطوط ثمانية — استخدام شخصي بإذن من ثمانية */@font-face{font-family:ThmanyahApp;font-weight:300;font-display:swap;src:url(thmanyahsans-Light.woff2) format('woff2')}@font-face{font-family:ThmanyahApp;font-weight:400;font-display:swap;src:url(thmanyahsans-Regular.woff2) format('woff2')}@font-face{font-family:ThmanyahApp;font-weight:500;font-display:swap;src:url(thmanyahsans-Medium.woff2) format('woff2')}@font-face{font-family:ThmanyahApp;font-weight:700;font-display:swap;src:url(thmanyahsans-Bold.woff2) format('woff2')}@font-face{font-family:ThmanyahApp;font-weight:800;font-display:swap;src:url(thmanyahsans-Black.woff2) format('woff2')}@font-face{font-family:ThmanyahDisp;font-weight:300;font-display:swap;src:url(thmanyahserifdisplay-Light.woff2) format('woff2')}@font-face{font-family:ThmanyahDisp;font-weight:400;font-display:swap;src:url(thmanyahserifdisplay-Regular.woff2) format('woff2')}@font-face{font-family:ThmanyahDisp;font-weight:500;font-display:swap;src:url(thmanyahserifdisplay-Medium.woff2) format('woff2')}@font-face{font-family:ThmanyahDisp;font-weight:700;font-display:swap;src:url(thmanyahserifdisplay-Bold.woff2) format('woff2')}@font-face{font-family:ThmanyahDisp;font-weight:800;font-display:swap;src:url(thmanyahserifdisplay-Black.woff2) format('woff2')}@font-face{font-family:ThmanyahText;font-weight:300;font-display:swap;src:url(thmanyahseriftext-Light.woff2) format('woff2')}@font-face{font-family:ThmanyahText;font-weight:400;font-display:swap;src:url(thmanyahseriftext-Regular.woff2) format('woff2')}@font-face{font-family:ThmanyahText;font-weight:500;font-display:swap;src:url(thmanyahseriftext-Medium.woff2) format('woff2')}@font-face{font-family:ThmanyahText;font-weight:700;font-display:swap;src:url(thmanyahseriftext-Bold.woff2) format('woff2')}@font-face{font-family:ThmanyahText;font-weight:800;font-display:swap;src:url(thmanyahseriftext-Black.woff2) format('woff2')}body[data-font=display]{font-family:ThmanyahDisp,ThmanyahApp,Tajawal,"Segoe UI",Tahoma,sans-serif}
+body[data-font=text]{font-family:ThmanyahText,ThmanyahApp,Tajawal,"Segoe UI",Tahoma,sans-serif}
+body[data-font=mixed] :is(#clock,#hd b,#grid .p em,#ah .nm,#fx>.t,.lb){font-family:ThmanyahDisp,ThmanyahApp,Tajawal,sans-serif}</style>
+
+</head>
+<body>
+<div id="bgp"></div>
+<div id="rain"></div>
+<div id="stage">
+  <header><div id="hd"><b>تبوك</b><span id="dates"></span><span id="fb" style="color:var(--sand)"></span></div></header>
+  <main><div id="wx"></div><div id="clock"></div><div id="next"></div></main>
+  <section id="grid"></section>
+  <div id="frm"><div class="du">اللهم صلِّ على محمد وعلى آل محمد، كما صليتَ على إبراهيم، وعلى آل إبراهيم، إنك حميد مجيد، اللهم بارك على محمد، وعلى آل محمد كما باركتَ على إبراهيم، وعلى آل إبراهيم إنك حميد مجيد</div><div class="kh">لا تنسَ قراءة سورة الكهف</div></div>
+  <div id="pay"></div>
+  <div id="sports"><section id="fx"></section><section id="ah"></section><section id="eu"></section></div>
+  <section id="news"></section>
+</div>
+<div id="adhan" hidden><small>حان الآن موعد</small><h1 id="an"></h1><b id="at"></b></div>
+<div id="tools">
+  <a id="yt" href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.google.android.youtube.tv;end" aria-label="يوتيوب (الرقم 1)" title="الرقم 1">&#9654;</a>
+  <a id="ar" href="intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.mbm_soft.aromatv;end" aria-label="AROMA TV (الرقم 2)" title="الرقم 2">TV</a>
+  <button id="rf" aria-label="تحديث البيانات">&#8635;</button>
+  <button id="bgn" hidden aria-label="تغيير الخلفية"><svg viewBox="0 0 24 24" width="55%" height="55%" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button id="gear" aria-label="الإعدادات">&#9881;</button>
+</div>
+<div id="panel" hidden><div id="box" role="dialog" aria-label="الإعدادات">
+  <h2>الإعدادات <small>للفتح اضغط 0 · للإغلاق زر الرجوع</small></h2>
+  <div class="cols"><div id="c1"></div><div id="c2"></div></div>
+  <button id="close">تم</button>
+</div></div>
+<script>
+/*DATA-START*/
+const DATA={"updated":"2026-10-20","news":["المملكة تقود إنشاء مجلس وزراء الأمن السيبراني لدول منظمة التعاون الإسلامي ومقره الرياض","حرية الملاحة والتطورات الإقليمية تتصدران مباحثات وزيري خارجية السعودية وفرنسا في الرياض","وزيرا خارجية السعودية والإمارات يبحثان المستجدات الإقليمية","أمير منطقة الرياض يسلم الدفعة الأولى من الأراضي لمستفيدي برنامج التوازن العقاري","النائب العام ووزير التجارة السعودي يبحثان تعزيز التنسيق لمكافحة المخالفات التجارية","الدفاع المدني: زوال الخطر عن الرياض والخرج بعد إطلاق الإنذار المبكر","السعودية وتركيا تبحثان أوضاع المنطقة وسبل مواجهة التحديات الراهنة","الملك سلمان يتلقى رسالة خطية من أمير قطر"],"wx":{"t":25,"c":"clear","at":"2026-10-20T20:02"},"ahli":{"rank":6,"pts":12,"gp":7,"form":[],"last":[]},"eu":[],"fx":[{"d":"2026-10-20","t":"18:00","h":"الدرعية","a":"الرياض"},{"d":"2026-10-20","t":"18:10","h":"التعاون","a":"القادسية"},{"d":"2026-10-20","t":"21:00","h":"الاتفاق","a":"الاتحاد"},{"d":"2026-10-20","t":"21:00","h":"النصر","a":"نيوم"}]};
+/*DATA-END*/
+
+// ===== الإعدادات =====
+const DEF={friday:1,look:'boxes',countdown:1,prayers:1,salary:1,matches:1,ahli:1,europe:1,news:1,apps:1,weather:1,rain:1,adhan:1,mode:'ticker',theme:'blue',pstyle:'strip',refresh:15,fs:1,font:'sans',bg:1,bgint:30};
+const TARGET={countdown:'next',prayers:'grid',salary:'pay',matches:'fx',ahli:'ah',europe:'eu',news:'news',weather:'wx',apps:'yt'};
+let S;try{S={...DEF,...JSON.parse(localStorage.getItem('tabukS')||'{}')}}catch(e){S={...DEF}}
+const save=()=>{try{localStorage.setItem('tabukS',JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const PST=[['strip','شريط'],['line','خط زمني'],['pills','كبسولات']];
+const MODES=[['ticker','شريط متحرك'],['headline','عنوان يتغير']];
+const REF=[[0,'إيقاف'],[5,'5د'],[15,'15د'],[60,'ساعة']];
+const LOOKS=[['boxes','بطاقات'],['clean','بدون بطاقات']];
+const FONTS=[['sans','نظيف'],['display','عناوين'],['text','كتابي'],['mixed','مختلط']];
+const BGI=[[10,'10د'],[30,'30د'],[60,'ساعة']];
+const FSZ=[[.88,'صغير'],[1,'عادي'],[1.12,'كبير'],[1.25,'كبير جداً']];
+const THEMES=[['blue','أزرق ليلي','#1b3a5c'],['teal','أخضر مزرق','#1b4a47'],['warm','رمادي دافئ','#4a4640']];
+const SEC=[['news','الأخبار','mode',MODES],['prayers','أوقات الصلاة','pstyle',PST],['salary','مواعيد الراتب'],['weather','الطقس'],['matches','مباريات روشن'],['ahli','بطاقة الأهلي'],['europe','مباريات أوروبا'],['apps','أزرار يوتيوب وAROMA']];
+const SPEC=[['rain','شكل المطر','rain'],['friday','وضع الجمعة','fri'],['adhan','تنبيه الأذان','adhan']];
+// يحاول الحجم المختار، وإذا لم يتسع يصغّره تلقائياً حتى يتسع المحتوى كله
+let FSE=1;
+function fitFs(){
+  const st=$('stage');if(!st)return;const r=document.documentElement.style;
+  let f=+S.fs||1;r.setProperty('--fs',f);
+  const parts=['stage','fx','ah','eu','pay','grid','wx','sports'].map($).filter(e=>e&&!e.hidden);
+  const over=()=>parts.some(e=>e.scrollHeight>e.clientHeight+1||e.scrollWidth>e.clientWidth+1);
+  for(let n=0;n<25&&over()&&f>.6;n++){f=Math.round((f-.02)*100)/100;r.setProperty('--fs',f)}
+  FSE=f;const nt=$('fsn');if(nt)nt.textContent=f<(+S.fs||1)-.005?'الحجم الفعلي '+Math.round(f*100)+'% — ضُبط تلقائياً ليتسع المحتوى كله':''
+}
+function applyS(){
+  document.body.dataset.theme=S.theme;document.body.dataset.font=S.font;document.body.dataset.look=S.look;$('grid').dataset.ps=S.pstyle;
+  for(const k in TARGET)$(TARGET[k]).hidden=!S[k];
+  $('ar').hidden=!S.apps;
+  $('next').hidden=!(S.countdown&&S.prayers);
+  $('sports').hidden=!(S.matches||S.ahli||S.europe);
+  bgRender();buildPanel();setupNews();schedRefresh();if(typeof wxRender==='function')wxRender();fitFs();
+}
+function buildPanel(){
+  const tg=(k,l)=>`<button class="tgl" role="switch" data-k="${k}" aria-checked="${!!S[k]}" aria-label="${l}"></button>`;
+  const sg=(k,list)=>`<span class="seg">`+list.map(([v,l])=>{const on=String(S[k])===String(v);return `<button class="sg" data-s="${k}" data-v="${v}" aria-pressed="${on}">${l}</button>`}).join('')+`</span>`;
+  const TL={rain:forceRain?'إيقاف':'تجربة',friday:forceFri?'إيقاف':'تجربة',adhan:'تجربة'};
+  $('c1').innerHTML='<div class="t">الأقسام</div>'+SEC.map(([k,l,sk,list])=>{
+    let h=`<div class="row"><span class="n">${l}</span>${list?sg(sk,list):''}${tg(k,l)}`;
+    if(k==='prayers')h+=`<div class="sub"><button class="ck" role="checkbox" data-k="countdown" aria-checked="${!!S.countdown}">${S.countdown?'✓':''}</button>إظهار العد التنازلي للصلاة القادمة</div>`;
+    return h+'</div>'}).join('');
+  $('c2').innerHTML='<div class="t">المظهر</div>'
+   +`<div class="row"><span class="n">التصميم</span><span class="seg"><button class="sg" data-design="classic" aria-pressed="true">كلاسيك</button><button class="sg" data-design="asri" aria-pressed="false">عصري</button></span></div>`
+   +`<div class="row"><span class="n">الثيم</span><span class="dots">`+THEMES.map(([v,l,c])=>`<button class="dt" data-s="theme" data-v="${v}" aria-pressed="${S.theme===v}" aria-label="${l}" style="background:${c}"></button>`).join('')+`</span></div>`
+   +`<div class="row"><span class="n">الأسلوب</span>${sg('look',LOOKS)}</div>`
+   +`<div class="row"><span class="n">خلفية الطبيعة</span>${sg('bgint',BGI)}${tg('bg','خلفية الطبيعة')}</div>`
+   +`<div class="row"><span class="n">نوع الخط</span>${sg('font',FONTS)}</div>`
+   +`<div class="row"><span class="n">حجم الخط</span>${sg('fs',FSZ)}<div class="sub" id="fsn"></div></div>`
+   +'<div class="t">الأوضاع الخاصة</div>'
+   +SPEC.map(([k,l,t])=>`<div class="row"><span class="n">${l}</span><button class="tb" data-test="${t}">${TL[k]}</button>${tg(k,l)}</div>`).join('')
+   +'<div class="t">التحديث</div>'
+   +`<div class="row"><span class="n">تحديث البيانات</span>${sg('refresh',REF)}</div><div id="ls"></div>`;
+  if(typeof updLS==='function')updLS();
+}
+$('box').addEventListener('click',e=>{const d=e.target.closest('[data-design]');if(d&&d.dataset.design==='asri'){try{const n=JSON.parse(localStorage.getItem('tabukN')||'{}');n.design='asri';localStorage.setItem('tabukN',JSON.stringify(n))}catch(x){}location.replace('index.html')}});
+function refocus(sel){const n=$('box').querySelector(sel);if(n)n.focus()}
+$('box').addEventListener('click',e=>{
+  const t=e.target.closest('[data-test]');if(t){runTest(t.dataset.test);return}
+  const g=e.target.closest('[data-s]');
+  if(g){const k=g.dataset.s,v=g.dataset.v;S[k]=(v!==''&&!isNaN(+v))?+v:v;save();applyS();refocus(`[data-s="${k}"][data-v="${v}"]`);return}
+  const b=e.target.closest('[data-k]');if(!b)return;
+  const k=b.dataset.k;S[k]=S[k]?0:1;save();applyS();refocus(`[data-k="${k}"]`)});
+function runTest(t){
+  if(t==='rain'){forceRain=!forceRain;wxRender();buildPanel();openP(false)}
+  else if(t==='fri'){forceFri=!forceFri;render();buildPanel();openP(false)}
+  else if(t==='adhan'){openP(false);showAdhan(0,5000)}
+}
+let pTimer;
+const idleP=()=>{clearTimeout(pTimer);if(!$('panel').hidden)pTimer=setTimeout(()=>openP(false),30000)};
+const openP=o=>{$('panel').hidden=!o;document.body.style.cursor=o?'auto':'none';
+  if(o){const f=$('box').querySelector('.tgl');if(f)f.focus()}else{clearTimeout(pTimer);$('gear').focus()}idleP()};
+['keydown','click','pointermove','focusin'].forEach(ev=>$('panel').addEventListener(ev,idleP));
+$('gear').addEventListener('click',()=>openP($('panel').hidden));
+$('close').addEventListener('click',()=>openP(false));
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  const dg=e.key==='0'||e.code==='Digit0'||e.code==='Numpad0';
+  if(dg){e.preventDefault();openP($('panel').hidden);return}
+  if((e.key==='1'||e.code==='Digit1'||e.code==='Numpad1')&&$('panel').hidden&&S.apps){e.preventDefault();$('yt').click();return}
+  if((e.key==='2'||e.code==='Digit2'||e.code==='Numpad2')&&$('panel').hidden&&S.apps){e.preventDefault();$('ar').click();return}
+  if(e.key==='Escape'||e.key==='Backspace')if(!$('panel').hidden){e.preventDefault();openP(false)}});
+window.addEventListener('resize',fitFs);
+if(document.fonts){const fr=()=>{fitFs();if(typeof updLS==='function')updLS()};document.fonts.ready.then(fr);document.fonts.addEventListener&&document.fonts.addEventListener('loadingdone',fr)}
+
+// ===== الأخبار =====
+let nTimer,nAnim,ni=0;
+function setupNews(){
+  clearInterval(nTimer);if(nAnim)nAnim.cancel();
+  const el=$('news');el.hidden=!S.news;if(!S.news)return;
+  if(DATA.generated&&Date.now()-Date.parse(DATA.generated+':00+03:00')>36*36e5){el.hidden=true;return}
+  const list=DATA.news;
+  if(S.mode==='ticker'){
+    el.innerHTML='<b class="lb">أخبار السعودية</b><div class="vp"><span class="tk"></span></div>';
+    const tk=el.querySelector('.tk');tk.textContent=list.join('      ◆      ');
+    requestAnimationFrame(()=>{const w=tk.offsetWidth,W=el.querySelector('.vp').offsetWidth;
+      nAnim=tk.animate([{transform:`translateX(${-w}px)`},{transform:`translateX(${W}px)`}],{duration:(w+W)/55*1000,iterations:Infinity})});
+  }else{
+    el.innerHTML='<b class="lb">أخبار السعودية</b><span class="hl"></span>';
+    const hl=el.querySelector('.hl'),show=()=>{hl.style.opacity=0;setTimeout(()=>{hl.textContent=list[ni++%list.length];hl.style.opacity=1},600)};
+    show();nTimer=setInterval(show,12000);
+  }
+}
+
+// ===== الصلاة (طريقة أم القرى) =====
+const LAT=28.3835,LNG=36.5662,TZ=3,RD=Math.PI/180,ZONE='Asia/Riyadh';
+const sin=d=>Math.sin(d*RD),cos=d=>Math.cos(d*RD),tan=d=>Math.tan(d*RD);
+const fix=(a,b)=>a-b*Math.floor(a/b);
+const NAMES=['الفجر','الظهر','العصر','المغرب','العشاء'];
+function calc(ds,ram){
+  const [y,m,d]=ds.split('-').map(Number);
+  const jd=Date.UTC(y,m-1,d,12)/864e5+2440587.5-2451545;
+  const g=fix(357.529+0.98560028*jd,360),q=fix(280.459+0.98564736*jd,360);
+  const L=fix(q+1.915*sin(g)+0.02*sin(2*g),360),e=23.439-3.6e-7*jd;
+  const RA=fix(Math.atan2(cos(e)*sin(L),cos(L))/RD/15,24);
+  const eqt=fix(q/15-RA+12,24)-12;
+  const dec=Math.asin(sin(e)*sin(L))/RD;
+  const T=a=>Math.acos((-sin(a)-sin(dec)*sin(LAT))/(cos(dec)*cos(LAT)))/RD/15;
+  const noon=12+TZ-LNG/15-eqt;
+  const asr=Math.acos((sin(Math.atan(1/(1+tan(Math.abs(LAT-dec))))/RD)-sin(dec)*sin(LAT))/(cos(dec)*cos(LAT)))/RD/15;
+  const mg=noon+T(0.833);
+  const h=[noon-T(18.5),noon+0.0167,noon+asr,mg,mg+(ram?2:1.5)];
+  const base=Date.UTC(y,m-1,d)-TZ*36e5;
+  return h.map(x=>base+x*36e5);
+}
+const dayFmt=new Intl.DateTimeFormat('en-CA',{timeZone:ZONE});
+const hmFmt=new Intl.DateTimeFormat('en-GB',{timeZone:ZONE,hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
+const monFmt=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',{timeZone:ZONE,month:'numeric'});
+const hijri=new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn',{timeZone:ZONE,day:'numeric',month:'long',year:'numeric'});
+const greg=new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn',{timeZone:ZONE,weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const cache={};
+function times(ms){const ds=dayFmt.format(ms);if(!cache[ds])cache[ds]=calc(ds,parseInt(monFmt.format(ms))===9);return cache[ds]}
+function parts(ms){const [h,m,s]=hmFmt.format(ms).split(':').map(Number);return{h,m,s}}
+const p2=n=>String(n).padStart(2,'0');
+const t12=ms=>{const{h,m}=parts(ms);return(h%12||12)+':'+p2(m)};
+$('grid').innerHTML=NAMES.map(n=>`<div class="p"><i class="dot"></i><span>${n}</span><em></em></div>`).join('');
+const cells=[...$('grid').children];
+
+// ===== مواعيد الراتب =====
+const dow=(y,m,d)=>new Date(Date.UTC(y,m,d)).getUTCDay();
+const payFmt=new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn',{timeZone:'UTC',weekday:'long',day:'numeric',month:'long'});
+function paydays(ds){
+  const [y,m,d]=ds.split('-').map(Number),t0=Date.UTC(y,m-1,d);
+  const emp=k=>{const mm=m-1+k,w=dow(y,mm,27);let day=27;if(w==5)day=26;else if(w==6)day=28;return Date.UTC(y,mm,day)};
+  const ret=k=>{const mm=m-1+k,w=dow(y,mm,1);let day=1;if(w==5)day=0;else if(w==6)day=-1;return Date.UTC(y,mm,day)};
+  const mk=(f,l)=>{const c=[];for(let k=-2;k<=3;k++)c.push(f(k));c.sort((a,b)=>a-b);
+    const nx=c.find(t=>t>=t0),pv=[...c].reverse().find(t=>t<nx);
+    return{l,t:nx,n:Math.round((nx-t0)/864e5),pg:Math.max(0,Math.min(1,(t0-pv)/(nx-pv)))}};
+  return[mk(emp,'راتب الموظفين'),mk(ret,'راتب المتقاعدين')];
+}
+const dTxt=n=>n==0?'اليوم 🎉':n==1?'غداً':n==2?'يومين':n<=10?n+' أيام':n+' يوم';
+
+// ===== مباريات اليوم =====
+const f12=ms=>{const{h,m}=parts(ms);return(h%12||12)+':'+p2(m)+(h<12?' ص':' م')};
+const TT=m=>Date.parse(m.d+'T'+m.t+':00+03:00');
+const wdFmt=new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn',{timeZone:'UTC',weekday:'long'});
+function dLabel(d){const t=dayFmt.format(Date.now()),n=Math.round((Date.parse(d)-Date.parse(t))/864e5);return n==0?'اليوم':n==1?'غداً':wdFmt.format(Date.parse(d+'T12:00:00Z'))}
+function fxRender(){
+  const now=Date.now(),today=dayFmt.format(now),END=110;
+  const all=(DATA.fx||[]).filter(m=>m.d>=today).sort((a,b)=>TT(a)-TT(b));
+  const day=all.length?all[0].d:today;
+  const list=all.filter(m=>m.d===day).slice(0,5);
+  const title=day===today?'مباريات اليوم':'مباريات '+dLabel(day);
+  const row=m=>{
+    const t=TT(m),el=Math.floor((now-t)/6e4),fin=m.hs!=null||el>=END,live=!fin&&el>=0;
+    let st='';
+    if(fin)st='انتهت';
+    else if(live)st=el<=47?'تلعب الآن <bdi dir="ltr">~'+Math.max(1,Math.min(el,45))+'′</bdi>':el<62?'استراحة':'تلعب الآن <bdi dir="ltr">~'+Math.min(el-15,90)+'′</bdi>';
+    const sc=m.hs!=null?`${m.as} - ${m.hs}`:'×';
+    return `<div class="m${live?' live':''}${fin?' done':''}"><span class="t">${f12(t)}</span><span class="pr"><span>${m.h}</span><span class="sc">${sc}</span><span>${m.a}</span></span><span class="st">${st}</span></div>`};
+  $('fx').innerHTML='<h3>'+title+' · دوري روشن</h3>'+(list.length?list.map(row).join(''):'<div class="m" style="grid-template-columns:1fr"><span>لا توجد مباريات قريبة</span></div>');
+}
+// ===== بطاقة الأهلي =====
+const LOGO="data:image/png;base64,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";
+const FL={W:'ف',D:'ت',L:'خ'};
+function ahRender(){
+  const a=DATA.ahli||{},now=Date.now();
+  let h='',winTxt='';
+  if(a.win){const t=Date.parse(a.win.at+':00+03:00'),p=a.win.s.split('-').reverse().join(' - ');
+    if(now>=t+105*6e4&&now<t+105*6e4+48*36e5)winTxt=`🏆 مبروك الفوز <span dir="ltr" style="display:inline-block">${p}</span>`}
+  h+=`<div class="hd2"><img src="${LOGO}" alt=""><div class="ti"><div class="nm">الأهلي</div><div class="sub${winTxt?' win2':''}">${winTxt||('دوري روشن'+(a.gp?' · الجولة '+a.gp:''))}</div></div>`+
+    (a.rank?`<div class="stt"><div><b>${a.rank}</b><small>الترتيب</small></div><div><b>${a.pts}</b><small>نقطة</small></div></div>`:'')+`</div>`;
+  if(a.form&&a.form.length)h+='<div class="fm">'+a.form.map(r=>`<i class="${r}">${FL[r]}</i>`).join('')+'</div>';
+  const RL={W:'فوز',D:'تعادل',L:'خسارة'};
+  if(a.last&&a.last.length)h+=a.last.map(l=>`<div class="rs ${l.r}"><span>الأهلي<span class="sc">${l.s.split('-').reverse().join(' - ')}</span>${l.o}</span><span class="rr">${RL[l.r]}</span></div>`).join('');
+  if(!(a.form&&a.form.length)&&!(a.last&&a.last.length)&&!a.next)h+='<div class="sub" style="margin-top:1vh;text-align:center">بانتظار أول تحديث للبيانات</div>';
+  if(a.next){const n=a.next;h+=`<div class="nx"><span>القادمة</span><b>${a.next.home===false?n.o+' × الأهلي':'الأهلي × '+n.o}</b><span>${dLabel(n.d)} · ${f12(TT(n))}</span></div>`}
+  $('ah').innerHTML=h;
+}
+// ===== أبرز مباريات أوروبا =====
+const LG={'esp.1':'الليغا','eng.1':'البريميرليغ'};
+function euRender(){
+  const now=Date.now(),list=(DATA.eu||[]).filter(m=>TT(m)+2*36e5>now).sort((a,b)=>TT(a)-TT(b)).slice(0,4);
+  $('eu').innerHTML='<h3>أبرز مباريات أوروبا</h3>'+(list.length?list.map(m=>`<div class="e"><div><small>${LG[m.lg]||''}</small>${m.h}<span class="x">×</span>${m.a}</div><span class="w">${dLabel(m.d)} · ${f12(TT(m))}</span></div>`).join(''):'<div class="e"><span>'+((DATA.eu||[]).length||DATA.generated&&DATA.ahli&&DATA.ahli.form?'لا توجد مباريات بارزة قريباً':'بانتظار أول تحديث للبيانات')+'</span></div>');
+}
+
+// ===== الطقس =====
+const ICON={
+ clear:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+ night:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+ cloud:'<path d="M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5a4.8 4.8 0 0 1 .5 9.5z"/>',
+ partly:'<circle cx="8" cy="8" r="2.5"/><path d="M8 2v1.5M2 8h1.5M3.8 3.8l1 1M12.2 3.8l-1 1"/><path d="M9 20a3.5 3.5 0 0 1-.4-7A5 5 0 0 1 18 11.5a4.2 4.2 0 0 1 .4 8.5z"/>',
+ rain:'<path d="M7 14a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 4.5a4.8 4.8 0 0 1 .5 9.5z"/><path d="M8 17v3M12 17v3M16 17v3"/>',
+ dust:'<path d="M4 8h13a2.5 2.5 0 1 0-2.5-2.5M3 12h16a2.5 2.5 0 1 1-2.5 2.5M5 16h9a2 2 0 1 1-2 2"/>'
+};
+let forceRain=false,forceFri=false,FRI=false;
+const nm=i=>(i===1&&FRI)?'الجمعة':NAMES[i];
+(function(){const r=$('rain');for(let i=0;i<28;i++){const d=document.createElement('i');d.style.left=(Math.random()*100)+'%';d.style.animationDuration=(1.3+Math.random()*1.1)+'s';d.style.animationDelay=(-Math.random()*2.4)+'s';r.appendChild(d)}})();
+const HFMT=h=>(h%12||12)+' '+(h<12?'ص':'م');
+function wxRender(){
+  const w=DATA.wx,el=$('wx');if(!el)return;
+  document.body.classList.toggle('rainy',!!(S.rain&&(forceRain||(w&&w.c==='rain'&&Date.now()-Date.parse(w.at+':00+03:00')<3*36e5))));
+  bgRender();
+  if(!S.weather)return;
+  const age=w?Date.now()-Date.parse(w.at+':00+03:00'):1e12;
+  if(!w||age>9*36e5){el.innerHTML='';return}
+  const n=Date.now(),tt=times(n),isNight=ms=>ms<tt[0]||ms>tt[3];
+  const ic=(c,ms)=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+(ICON[(c==='clear'&&isNight(ms))?'night':c]||ICON.cloud)+'</svg>';
+  const cur=forceRain?'rain':w.c;
+  let h=`<div class="h now${cur==='rain'?' rn':''}"><span>الآن</span>${ic(cur,n)}<b>${Math.round(w.t)}°</b><em></em></div>`;
+  const hs=(DATA.hrs||[]).filter(x=>Date.parse(x.t+':00+03:00')>n).slice(0,5);
+  if(hs.length)h+='<i class="sp2"></i>';
+  hs.forEach(x=>{const ms=Date.parse(x.t+':00+03:00'),hh=+x.t.slice(11,13),rain=x.c==='rain'||x.p>=40;
+    h+=`<div class="h${rain&&x.p>=40?' rn':''}"><span>${HFMT(hh)}</span>${ic(x.c,ms)}<b>${Math.round(x.tt)}°</b><em>${x.p>=40?'مطر '+x.p+'%':''}</em></div>`});
+  el.innerHTML=h;
+  bgRender();
+}
+// ===== تنبيه الأذان =====
+let adTimer;const dismissed=new Set();
+function showAdhan(i,ms,key){
+  $('an').textContent='أذان '+nm(i);
+  $('at').textContent=t12(times(Date.now())[i])+(parts(times(Date.now())[i]).h<12?' ص':' م');
+  $('adhan').hidden=false;clearTimeout(adTimer);
+  adTimer=setTimeout(()=>{$('adhan').hidden=true},ms);
+  if(key)dismissed.add(key);
+}
+const hideAd=()=>{if(!$('adhan').hidden){$('adhan').hidden=true;clearTimeout(adTimer);return true}return false};
+$('adhan').addEventListener('click',hideAd);
+document.addEventListener('keydown',e=>{if(hideAd())e.preventDefault()},true);
+function adhanCheck(now,tt,day){
+  if(!S.adhan||!$('adhan').hidden)return;
+  for(let i=0;i<5;i++){const k=day+i;if(now>=tt[i]&&now<tt[i]+60000&&!dismissed.has(k)){showAdhan(i,Math.max(3000,tt[i]+60000-now),k);break}}
+}
+// ===== جلب البيانات =====
+const WMO=c=>c===0?'clear':c<=2?'partly':c===3?'cloud':((c>=51&&c<=67)||(c>=80&&c<=82)||c>=95)?'rain':'cloud';
+async function wxFetch(){
+  try{const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=28.3835&longitude=36.5662&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code,precipitation_probability&forecast_days=2&timezone=Asia%2FRiyadh');
+    const j=await r.json(),c=j.current;DATA.wx={t:c.temperature_2m,c:WMO(c.weather_code),at:c.time};
+    if(j.hourly&&j.hourly.time)DATA.hrs=j.hourly.time.map((t,i)=>({t:t,tt:j.hourly.temperature_2m[i],c:WMO(j.hourly.weather_code[i]),p:j.hourly.precipitation_probability[i]||0}));
+    wxRender();return true}catch(e){return false}
+}
+let lastTry=0,lastOk=0,rT;
+async function loadData(){
+  const b=$('rf');b.classList.add('spin');lastTry=Date.now();
+  let ok=false;
+  try{const r=await fetch('data.json?t='+Date.now(),{cache:'no-store'});
+    if(r.ok){Object.assign(DATA,await r.json());ok=true;setupNews();fxRender();ahRender();euRender();wxRender()}}catch(e){}
+  if(await wxFetch())ok=true;
+  if(ok)lastOk=Date.now();
+  updLS();fitFs();setTimeout(()=>b.classList.remove('spin'),600);
+}
+function updLS(){if(!$('ls'))return;
+  const f=ms=>ms?t12(ms)+(parts(ms).h<12?' ص':' م'):'—';
+  const g=DATA.generated?Date.parse(DATA.generated+':00+03:00'):0;
+  const FM={sans:['ThmanyahApp'],display:['ThmanyahDisp'],text:['ThmanyahText'],mixed:['ThmanyahApp','ThmanyahDisp']};
+  const fo=(FM[S.font]||FM.sans).every(n=>[...document.fonts].some(x=>x.family.replace(/"/g,'')===n&&x.status==='loaded'));
+  $('ls').textContent='آخر جلب ناجح: '+f(lastOk)+'  ·  آخر تحديث للمصدر: '+f(g)+'  ·  الخط: '+(fo?'ثمانية ✓':'ثمانية لم يُحمَّل بعد (يظهر الخط الاحتياطي)');
+}
+function schedRefresh(){clearInterval(rT);if(+S.refresh)rT=setInterval(loadData,+S.refresh*6e4)}
+$('rf').addEventListener('click',loadData);
+
+// ===== خلفية الطبيعة: صور اختيارية بأسماء bg1.jpg و bg2.jpg و bg3.jpg ... (حتى 30) تتبدّل بالتسلسل =====
+let bgList=null,bgCur='',bgTm,bgTok=0,bgOff=0;
+function bgProbe(){
+  if(bgList)return bgList;
+  const ok=u=>new Promise(r=>{const i=new Image();i.onload=()=>r(u);i.onerror=()=>r(null);i.src=u});
+  const ps=[];for(let i=1;i<=30;i++)ps.push(ok('bg'+i+'.jpg'));
+  return bgList=Promise.all(ps).then(a=>a.filter(Boolean));
+}
+async function bgRender(force){
+  const el=$('bgp'),B=document.body.classList,bn=$('bgn');if(!el)return;
+  const tok=++bgTok;
+  if(!S.bg){B.remove('bgon');if(bn)bn.hidden=true;return}
+  const list=await bgProbe();
+  if(tok!==bgTok)return;
+  if(bn)bn.hidden=list.length<2;
+  if(!list.length){B.remove('bgon');bgCur='';return}
+  const iv=(+S.bgint||30)*6e4,u=list[(Math.floor(Date.now()/iv)+bgOff)%list.length];
+  if(u===bgCur&&B.contains('bgon'))return;
+  const go=()=>{el.style.backgroundImage='url('+u+')';bgCur=u;B.add('bgon')};
+  clearTimeout(bgTm);
+  if(B.contains('bgon')&&bgCur&&bgCur!==u){B.remove('bgon');bgTm=setTimeout(go,force?900:1700)}else go();
+}
+$('bgn').addEventListener('click',()=>{bgOff++;bgRender(true)});
+// ===== الرسم الدوري =====
+let lastDay='';
+function render(){
+  const now=Date.now(),{h,m}=parts(now),tt=times(now),day=dayFmt.format(now);
+  {const [yy,mo,dd]=day.split('-').map(Number);const isF=new Date(Date.UTC(yy,mo-1,dd)).getUTCDay()===5;
+   FRI=forceFri||(!!S.friday&&isF);
+   const hide=FRI&&(forceFri||(now>=tt[0]&&now<tt[1]+36e5)),kahf=FRI&&!hide&&now>=tt[1]+36e5&&now<tt[3];
+   const B=document.body.classList;document.body.dataset.look=FRI?'clean':S.look;B.toggle('friday',FRI);B.toggle('frihide',hide);B.toggle('frikahf',kahf);
+   $('fb').textContent=FRI?'  ·  جمعة مباركة'+(kahf?'  ·  لا تنسَ قراءة سورة الكهف':''):''}
+  $('clock').innerHTML='<span><small>'+(h<12?'ص':'م')+'</small>'+(h%12||12)+':'+p2(m)+'</span>';
+  if(day!==lastDay){
+    lastDay=day;
+    $('dates').textContent=greg.format(now)+'  ·  '+hijri.format(now);
+    cells.forEach((c,i)=>c.querySelector('em').textContent=t12(tt[i]));
+    $('pay').innerHTML=paydays(day).map(p=>`<div class="s"><div class="t"><span>${p.l}</span><b>${dTxt(p.n)}</b></div><div class="bar"><i style="width:${Math.round(p.pg*100)}%"></i></div><small>${payFmt.format(p.t)}</small></div>`).join('<div class="pv"></div>');
+    fxRender();ahRender();euRender();
+  }
+  let idx=-1;for(let i=0;i<5;i++){if(tt[i]>now){idx=i;break}}
+  let target;if(idx<0){idx=0;target=times(now+864e5)[0]}else target=tt[idx];
+  const passed=tt.filter(x=>x<=now).length;
+  cells.forEach((c,i)=>{c.querySelector('span').textContent=nm(i);c.classList.toggle('on',i===idx);c.classList.toggle('past',i<passed)});
+  let pg=0;if(passed>=5)pg=1;else if(passed>0)pg=(passed-1+(now-tt[passed-1])/(tt[passed]-tt[passed-1]))/4;
+  $('grid').style.setProperty('--pg',(pg*80)+'%');
+  adhanCheck(now,tt,day);if(m%5===0&&now%60000<1500)wxRender();
+  const tm=Math.max(0,Math.ceil((target-now)/6e4)),hh=Math.floor(tm/60),mm=tm%60;
+  $('next').innerHTML='متبقي على صلاة <b>'+nm(idx)+'</b> <span id="cd">'+p2(hh)+':'+p2(mm)+'</span>';
+}
+applyS();wxRender();render();
+Promise.race([Promise.all([loadData(),document.fonts?document.fonts.ready:0]),new Promise(r=>setTimeout(r,3500))]).then(()=>requestAnimationFrame(()=>{fitFs();bgRender();document.body.classList.add('ready')}));
+setInterval(render,1000);setInterval(()=>{fxRender();ahRender();euRender();fitFs();bgRender()},6e4);
+setInterval(()=>{const r=()=>Math.round((Math.random()-.5)*20);$('stage').style.transform=`translate(${r()}px,${r()}px)`},60000);
+</script>
+</body>
+</html>
