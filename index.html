@@ -179,7 +179,7 @@ body.frikahf .kahf{display:block}
 .win .w1{font-size:1.35rem;font-weight:900;color:var(--gold)}
 .win .w2{font-size:.9rem}
 .mrow{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:.07rem solid var(--line);font-size:1.02rem}
-.mrow .t{width:3.4rem;color:var(--gold);font-weight:900;direction:ltr;text-align:right;font-size:.95rem}
+.mrow .t{width:5.4rem;white-space:nowrap;color:var(--gold);font-weight:900;direction:ltr;text-align:right;font-size:.95rem}
 .mrow .pr2{flex:1;display:flex;align-items:center;justify-content:space-between;gap:.4rem;min-width:0}
 .mrow .pr2 span{white-space:nowrap}
 .mrow .sc{direction:ltr;font-weight:900;color:var(--mut)}
@@ -280,6 +280,8 @@ body.matchpage #p-sports .mt{display:block}
 button.st{width:100%;font:inherit;color:inherit;text-align:inherit}
 button.st:focus{border-color:var(--gold);box-shadow:0 0 0 .14rem var(--gold);outline:0}
 .st .sw{color:var(--gold);font-size:.85rem}
+.scl{margin-top:.5rem;font-size:.95rem;color:var(--fg)}.sco{line-height:1.7}.sco em{font-style:normal;color:var(--gold);direction:ltr;unicode-bidi:isolate;display:inline-block;margin-inline-start:.3rem}
+.mt .low>.lgc{width:46rem;text-align:center}.lgc .stt{display:flex;justify-content:center;gap:2.4rem;margin-top:.4rem}.lgc .stt b{display:block;font-size:2.4rem;font-weight:900;line-height:1}.lgc .stt small{color:var(--mut);font-size:.85rem}.lgc .fm{justify-content:center}
 </style>
 </head>
 <body data-page="home" data-mode="pure" data-theme="blue" data-dim="mid" data-motion="off" class="nophoto">
@@ -778,7 +780,7 @@ function renderGrid(){
     h+=`<div class="ah1"><img src="${LOGO}" alt=""><div style="flex:1"><div class="nm">الأهلي</div><div class="sb">دوري روشن${AH.rank?' · المركز '+AH.rank:''}</div></div>`;
     if(AH.rank!=null)h+=`<div class="st2"><div><b>${AH.pts??'-'}</b><small>نقطة</small></div><div><b>${AH.gp??'-'}</b><small>لعب</small></div></div>`;
     h+=`</div>`;
-    if(AH.form&&AH.form.length)h+=`<div class="fm">`+AH.form.slice(-5).reverse().map(x=>`<i class="${x}">${FM[x]||x}</i>`).join('')+`</div>`;
+    if(AH.form&&AH.form.length)h+=`<div class="fm">`+AH.form.slice(0,5).map(x=>`<i class="${x}">${FM[x]||x}</i>`).join('')+`</div>`;
     (AH.last||[]).slice(0,3).forEach(r=>{h+=`<div class="rs"><span>${img(r.ol)}${esc(r.o)}</span><b>${esc(r.s)}</b><span class="tag ${r.r}">${FM[r.r]||''}</span></div>`});
     if(AH.next){const n=AH.next;h+=`<div class="nx"><div class="s1">المباراة القادمة</div><b>${img(n.ol)}${n.home===false?esc(n.o)+' × الأهلي':'الأهلي × '+esc(n.o)}</b><div class="s2">${dLabel(n.d)} · ${f12(TT(n))}</div></div>`}
     cols.push(h+`</div>`);
@@ -793,7 +795,7 @@ function renderGrid(){
         const L=liveFor(m.hl,m.al);let sc='',stt=f12(Date.parse(m.d+'T'+m.t+':00+03:00')),cls='';
         if(L&&L.state==='in'){cls=' live';sc=`${L.a.s} - ${L.h.s}`;stt='مباشر '+(L.clock||L.detail)}
         else if(L&&L.state==='post'){cls=' done';sc=`${L.a.s} - ${L.h.s}`;stt='انتهت'}
-        h+=`<div class="mrow${cls}"><span class="t">${m.t}</span><div class="pr2"><span>${img(m.hl)}${esc(m.h)}</span><span class="sc">${sc||'×'}</span><span>${esc(m.a)}${img(m.al)}</span></div><span class="stt">${esc(L?stt:'')}</span></div>`});
+        h+=`<div class="mrow${cls}"><span class="t">${f12(Date.parse(m.d+'T'+m.t+':00+03:00'))}</span><div class="pr2"><span>${img(m.hl)}${esc(m.h)}</span><span class="sc">${sc||'×'}</span><span>${esc(m.a)}${img(m.al)}</span></div><span class="stt">${esc(L?stt:'')}</span></div>`});
       cols.push(h+`</div>`);
     }
   }
@@ -819,13 +821,16 @@ function resetScene(){sceneAnims.forEach(a=>{try{a.cancel()}catch(e){}});sceneAn
 let lastMt='';
 function renderMatch(M){
   const win=M.state==='post'&&M.h.s>M.a.s;
-  const stx=M.state==='post'?'انتهت المباراة':(M.est?'الدقيقة '+M.min:'مباشر · '+M.min);
-  const evh=M.evs.length?`<div><h4>أحداث المباراة</h4>`+M.evs.map(e=>`<div class="evr"><b>${esc(e.m)}</b><span>${e.k==='g'?'⚽':e.k==='r'?'🟥':'🟨'} ${esc(e.who)}${e.k==='g'?' · هدف':''}</span></div>`).join('')+`</div>`:'';
+  const mn=String(M.min).replace(/['′’]/g,'').replace(' (تقديري)','');const stx=M.state==='post'?'انتهت المباراة':(M.est?(/^\d/.test(mn)?'الدقيقة '+mn+' (تقديري)':mn):(/^\d/.test(mn)?'مباشر · الدقيقة '+mn:'مباشر · '+mn));
   const AH=DATA.ahli||{};
-  const lh=AH.rank?`<div><h4>الأهلي في الدوري</h4><div class="ah1"><div class="nm" style="font-size:1.4rem">المركز ${AH.rank}</div><div class="st2" style="margin-inline-start:auto"><div><b>${AH.pts??'-'}</b><small>نقطة</small></div><div><b>${AH.gp??'-'}</b><small>لعب</small></div></div></div>${AH.form&&AH.form.length?`<div class="fm">${AH.form.slice(-5).reverse().map(x=>`<i class="${x}">${FM[x]||x}</i>`).join('')}</div>`:''}</div>`:'';
-  const tm=(t,cls)=>`<div class="tm"><div class="lw ${cls||''}" ${cls?'style="border-radius:50%;background:radial-gradient(circle at 35% 30%,#4a86e8,#1c3f8a)"':''}>${t.l?`<img src="${esc(t.l)}" alt="" onerror="this.remove()">`:''}</div><b>${esc(t.n)}</b></div>`;
-  const html=`<div class="cmp">${M.lg}</div><div class="sc3">${tm(M.h)}<div><div class="big">${M.a.s} - ${M.h.s}</div><div class="stx${M.state==='in'?' live':''}">${stx}</div>${win?'<div style="text-align:center"><span class="pill">مبروك الفوز 🎉</span></div>':''}</div>${tm(M.a,'dropper')}</div>`
-    +((evh||lh)?`<div class="low">${evh}${lh}</div>`:'<div class="low"></div>');
+  const ico=k=>k==='g'?'⚽':k==='r'?'🟥':'🟨';
+  const scl=l=>l.length?`<div class="scl">`+l.map(e=>`<div class="sco">${ico(e.k)} ${esc(e.who)} <em>${esc(String(e.m).replace(/['′’]/g,''))} د</em></div>`).join('')+`</div>`:'';
+  const mine=M.evs.filter(e=>e.mine),opp=M.evs.filter(e=>!e.mine);
+  const stats=[['المركز',AH.rank],['النقاط',AH.pts],['لعب',AH.gp],['فوز',AH.w],['تعادل',AH.d],['خسارة',AH.l]].filter(x=>x[1]!=null);
+  const lh=stats.length?`<div class="lgc"><h4>الأهلي في دوري روشن</h4><div class="stt">`+stats.map(([l,v])=>`<div><b>${v}</b><small>${l}</small></div>`).join('')+`</div>${AH.form&&AH.form.length?`<div class="fm">${AH.form.slice(0,5).map(x=>`<i class="${x}">${FM[x]||x}</i>`).join('')}</div>`:''}</div>`:'';
+  const tm=(t,cls,evs)=>`<div class="tm"><div class="lw ${cls||''}" ${cls?'style="border-radius:50%;background:radial-gradient(circle at 35% 30%,#4a86e8,#1c3f8a)"':''}>${t.l?`<img src="${esc(t.l)}" alt="" onerror="this.remove()">`:''}</div><b>${esc(t.n)}</b>${scl(evs)}</div>`;
+  const html=`<div class="cmp">${M.lg}</div><div class="sc3">${tm(M.h,'',mine)}<div><div class="big">${M.a.s} - ${M.h.s}</div><div class="stx${M.state==='in'?' live':''}">${stx}</div>${win?'<div style="text-align:center"><span class="pill">مبروك الفوز 🎉</span></div>':''}</div>${tm(M.a,'dropper',opp)}</div>`
+    +(lh?`<div class="low">${lh}</div>`:'<div class="low"></div>');
   const key=html+(sceneFor===M.id?'':'n');
   if(key===lastMt)return;
   const hadScene=$('stage2').style.display==='block';

@@ -163,6 +163,8 @@ def ahli():
                 if str(e["team"].get("id")) == AHLI:
                     stt = {x["name"]: x.get("value") for x in e["stats"]}
                     out["rank"], out["pts"], out["gp"] = int(stt["rank"]), int(stt["points"]), int(stt.get("gamesPlayed", 0))
+                    for k_, n_ in (("w", "wins"), ("d", "ties"), ("l", "losses")):
+                        if stt.get(n_) is not None: out[k_] = int(stt[n_])
     except Exception as e:
         print("تحذير: الترتيب:", e, file=sys.stderr)
     return out
