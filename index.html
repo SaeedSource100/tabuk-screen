@@ -454,6 +454,7 @@ function applyS(){
   B.dataset.mode=S.mode;B.dataset.theme=S.theme;B.dataset.dim=S.dim;B.dataset.font=S.font;B.dataset.motion=S.motion;
   B.dataset.sui=S.sui;document.documentElement.style.setProperty('--fs',S.fs);
   if(S.design==='classic'&&!/[?&]stay=1/.test(location.search)){location.replace('index-old.html');return}
+  try{if(window.TabukApp&&TabukApp.setAlert)TabukApp.setAlert(String(S.alert),+S.vol)}catch(e){}
   syncSettings();gate();
   safe(modes);safe(renderSlow);safe(renderStatus);safe(renderCards);
 }
