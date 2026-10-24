@@ -296,6 +296,16 @@ body[data-sui=cards]:not(.cardopen) #cards{display:grid}
 .card b{display:block;font-size:1.5rem;font-weight:900}.card small{display:block;color:var(--mut);margin-top:.6rem;font-size:1rem;line-height:1.5}
 .card:focus{border-color:var(--gold);background:#f1dc9a24;box-shadow:0 0 0 .14rem var(--gold);outline:0}
 .cback{margin-bottom:1rem}
+#msgb{border-color:var(--gold);color:var(--gold)}
+#msgb .bdg{position:absolute;top:-.55rem;left:-.55rem;background:#f87171;color:#fff;border-radius:99px;min-width:1.5rem;height:1.5rem;font-size:.95rem;font-weight:900;display:grid;place-items:center;padding:0 .3rem}
+#msgnote{display:inline-block;margin-top:.9rem;font-size:1.15rem;font-weight:700;color:var(--gold);background:#f1dc9a22;border:.07rem solid #f1dc9a66;padding:.3rem 1.1rem;border-radius:99px}
+body[data-page=msgs] #p-msgs{display:block}
+#p-msgs .mh{display:flex;align-items:center;gap:1.2rem;margin-bottom:1rem}#p-msgs .mh h3{margin:0;color:var(--gold);font-size:1.6rem;font-weight:900}
+#mlist{max-width:80rem}
+.mi{display:flex;gap:1.4rem;align-items:flex-start;padding:.9rem 1.2rem;border-bottom:.07rem solid var(--line)}
+.mi.nw{background:#f1dc9a14;border:.07rem solid #f1dc9a55;border-radius:1rem;margin-bottom:.3rem}
+.mi .w{width:8rem;flex:none;color:var(--gold);font-weight:700;font-size:1rem;padding-top:.3rem}
+.mi .nm{display:block;color:var(--gold);font-weight:700;font-size:1rem}.mi .tx2{font-size:1.5rem;line-height:1.5}
 </style>
 </head>
 <body data-page="home" data-mode="pure" data-theme="blue" data-dim="mid" data-motion="off" class="nophoto">
@@ -312,6 +322,7 @@ body[data-sui=cards]:not(.cardopen) #cards{display:grid}
     </nav>
     <div id="alert" role="alert"><span class="a1"><i>🕌</i><span id="altx"></span></span></div>
     <div id="tools">
+      <button class="tl" id="msgb" aria-label="الرسائل" hidden>💬<span class="bdg" id="msgn" hidden></span></button>
       <button class="tl" id="rf" aria-label="تحديث البيانات"><span>&#8635;</span></button>
       <button class="tl" id="bgn" aria-label="تغيير الخلفية"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
       <button class="tl" id="ex" aria-label="إغلاق التطبيق" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -320,6 +331,7 @@ body[data-sui=cards]:not(.cardopen) #cards{display:grid}
   <main id="pages">
     <section class="pg" id="p-home">
       <div id="hm"><div id="gr" class="tx"></div><div class="ck tx" id="bck"></div><div class="dl tx" id="bdl"></div><div class="dl2 tx" id="bdl2"></div><div class="kahf" id="kahf">جمعة مباركة · لا تنسَ قراءة سورة الكهف</div>
+        <div id="msgnote" hidden></div>
         <div id="wxb" class="tx"></div><div id="lines" class="tx"></div></div>
       <div id="pr" class="tx"></div>
       <div id="frm"><div class="du">اللهم صلِّ على محمد وعلى آل محمد، كما صليتَ على إبراهيم، وعلى آل إبراهيم، إنك حميد مجيد، اللهم بارك على محمد، وعلى آل محمد كما باركتَ على إبراهيم، وعلى آل إبراهيم إنك حميد مجيد</div><div class="kh">لا تنسَ قراءة سورة الكهف</div></div>
@@ -335,6 +347,7 @@ body[data-sui=cards]:not(.cardopen) #cards{display:grid}
       <button class="btn" id="spmode" style="position:absolute;left:0;top:-.2rem;z-index:3;display:none"></button>
       <div id="stage2"></div>
     </section>
+    <section class="pg" id="p-msgs"><div class="mh"><button class="btn" id="mback2">‹ رجوع</button><h3>الرسائل</h3><button class="btn" id="mclr">مسح الكل</button></div><div id="mlist"></div></section>
     <section class="pg" id="p-settings"><div id="sbar"></div><div id="sbody"></div></section>
   </main>
 </div>
@@ -353,7 +366,7 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const img=(u,c)=>u?`<img class="${c||'lgs'}" src="${esc(u)}" alt="" onerror="this.remove()">`:'';
 /* ---------- الإعدادات (تُطبَّق فوراً) ---------- */
 const DEF={design:'asri',mode:'pure',dim:'mid',motion:'off',bg:1,bgint:30,theme:'blue',font:'sans',fs:1,kick:1,
-  sRosh:1,sAhli:1,sEu:1,weather:'now5',news:1,prayers:1,pstyle:'strip',countdown:1,salary:1,apps:1,friday:1,rain:1,alert:'sound',vol:70,refresh:15,sui:'tabs'};
+  sRosh:1,sAhli:1,sEu:1,weather:'now5',news:1,prayers:1,pstyle:'strip',countdown:1,salary:1,apps:1,friday:1,rain:1,alert:'sound',vol:70,refresh:15,sui:'tabs',msgsnd:1};
 let S;try{S={...DEF,...JSON.parse(localStorage.getItem('tabukN')||'{}')}}catch(e){S={...DEF}}
 const save=()=>{try{localStorage.setItem('tabukN',JSON.stringify(S))}catch(e){}};
 const SEGS={
@@ -413,7 +426,7 @@ function buildSettings(){
    h1:rw('الراتب',tg('salary')),h2:rw('التطبيقات',tg('apps')),h3:rw('العد التنازلي للصلاة',tg('countdown')),
    spec:rw('الأوضاع الخاصة',cps([['friday','الجمعة'],['rain','المطر'],['kick','مشهد الركل']]),'تعمل تلقائياً عند توفر شروطها'),
    alert:mu('التنبيه',gp('',seg('alert'))+gp('الصوت',seg('vol'))+gp('',tb('alert','تجربة')),'أي زر يوقف الأذان'),
-   al1:rw('التنبيه',seg('alert'),'أي زر يوقف الأذان'),al2:rw('مستوى الصوت',seg('vol')),al3:rw('تجربة الأذان',tb('alert','تجربة')),
+   al1:rw('التنبيه',seg('alert'),'أي زر يوقف الأذان'),al2:rw('مستوى الصوت',seg('vol')),al3:rw('تجربة الأذان',tb('alert','تجربة')),msnd:rw('صوت الرسائل',tg('msgsnd'),'نغمة هادئة عند وصول رسالة'),
    tests:mu('تجارب العروض',gp('',tb('fri','الجمعة'))+gp('',tb('rain','المطر'))+gp('',tb('match','مباراة مباشرة'))+gp('',tb('win','مبروك الفوز')),'تنتهي تلقائياً، وزر الرجوع يوقفها'),
    sc1:rw('وضع الجمعة',tg('friday')+tb('fri','تجربة')),sc2:rw('وضع المطر',tg('rain')+tb('rain','تجربة')),sc3:rw('مباراة مباشرة',tb('match','تجربة')),sc4:rw('مبروك الفوز',tb('win','تجربة')),
    stl:`<div id="stl"></div>`,
@@ -422,8 +435,8 @@ function buildSettings(){
    rst:rw('استعادة الإعدادات الافتراضية',`<button class="btn danger" id="rst">استعادة</button>`)};
   let G;
   if(cards)G={look:P.design+P.mode+P.font+P.fs+P.sui,bgc:P.bg1+P.bg2+P.bg3+P.bg4+P.bg5,home:P.weather+P.pray+P.h1+P.h2+P.h3,spt:P.sp1+P.sp2+P.sp3+P.sp4,
-    alr:P.al1+P.al2+P.al3,spc:P.sc1+P.sc2+P.sc3+P.sc4,sys:P.stl+P.upd+P.ref+P.rst};
-  else G={look:P.design+P.mode+P.bgmu+P.font+P.fs+P.sui,sec:P.spchips+P.weather+P.pray+P.showchips+P.spec,alr:P.alert+P.tests,sys:P.stl+P.upd+P.ref+P.rst};
+    alr:P.al1+P.al2+P.al3+P.msnd,spc:P.sc1+P.sc2+P.sc3+P.sc4,sys:P.stl+P.upd+P.ref+P.rst};
+  else G={look:P.design+P.mode+P.bgmu+P.font+P.fs+P.sui,sec:P.spchips+P.weather+P.pray+P.showchips+P.spec,alr:P.alert+P.msnd+P.tests,sys:P.stl+P.upd+P.ref+P.rst};
   if(cards){
     $('sbar').innerHTML='';
     $('sbody').innerHTML=`<div id="cards">`+CARDS.map(([k,l])=>`<button class="card" data-c="${k}"><b>${l}</b><small></small></button>`).join('')+`</div>`
@@ -454,7 +467,7 @@ function applyS(){
   B.dataset.mode=S.mode;B.dataset.theme=S.theme;B.dataset.dim=S.dim;B.dataset.font=S.font;B.dataset.motion=S.motion;
   B.dataset.sui=S.sui;document.documentElement.style.setProperty('--fs',S.fs);
   if(S.design==='classic'&&!/[?&]stay=1/.test(location.search)){location.replace('index-old.html');return}
-  try{if(window.TabukApp&&TabukApp.setAlert)TabukApp.setAlert(String(S.alert),+S.vol)}catch(e){}
+  try{if(window.TabukApp&&TabukApp.setAlert){TabukApp.setAlert(String(S.alert),+S.vol);TabukApp.setMsgSound&&TabukApp.setMsgSound(!!S.msgsnd)}}catch(e){}
   syncSettings();gate();
   safe(modes);safe(renderSlow);safe(renderStatus);safe(renderCards);
 }
@@ -468,7 +481,7 @@ document.addEventListener('click',e=>{
 });
 /* ---------- الصفحات والتنقل ---------- */
 let PAGE='home';
-function showPage(p){if(p===PAGE&&document.body.dataset.page===p)return;PAGE=p;document.body.dataset.page=p;$$('.tab').forEach(t=>{t.classList.toggle('on',t.dataset.p===p);t.setAttribute('aria-selected',t.dataset.p===p)});if(p==='settings')safe(renderStatus);if(p==='sports')safe(renderSports);safe(rainCtl)}
+function showPage(p){if(p===PAGE&&document.body.dataset.page===p)return;const prev=PAGE;PAGE=p;if(prev==='msgs'&&p!=='msgs'){try{TabukApp.markRead()}catch(e){}setTimeout(refreshMsgs,50)}document.body.dataset.page=p;$$('.tab').forEach(t=>{t.classList.toggle('on',t.dataset.p===p);t.setAttribute('aria-selected',t.dataset.p===p)});if(p==='settings')safe(renderStatus);if(p==='sports')safe(renderSports);if(p==='msgs')safe(renderMsgs);safe(rainCtl)}
 $$('.tab').forEach(t=>{t.addEventListener('click',()=>showPage(t.dataset.p));t.addEventListener('focus',()=>showPage(t.dataset.p))});
 function gate(){
   const sp=!!(S.sRosh||S.sAhli||S.sEu)&&!HIDE;
@@ -1068,7 +1081,7 @@ window.addEventListener('resize',()=>{if(rainOn){RC.width=innerWidth;RC.height=i
 let lastAct=Date.now();['keydown','mousemove','click'].forEach(ev=>document.addEventListener(ev,()=>{lastAct=Date.now()},true));
 function idleCheck(){
   if(TEST||alertOn)return;const idle=Date.now()-lastAct;
-  if((PAGE==='sports'&&idle>12e4)||(PAGE==='settings'&&idle>3e5)){
+  if((PAGE==='sports'&&idle>12e4)||(PAGE==='msgs'&&idle>12e4)||(PAGE==='settings'&&idle>3e5)){
     if(SCARD)closeCard();SPM='';showPage('home');const t=$$('.tab')[0];t&&t.focus();
   }
 }
@@ -1091,6 +1104,33 @@ window.addEventListener('online',()=>loadData());window.addEventListener('offlin
 applyS();renderAll();showPage('home');
 loadBgList();bgSched();sched();loadData();
 {const t=$$('.tab')[0];t&&t.focus()}
+/* ---------- الرسائل (داخل التطبيق فقط) ---------- */
+const hasMsgs=()=>!!(window.TabukApp&&TabukApp.getMessages);
+let MS=[],MUN=0;
+const arn=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+function msgWhen(t){
+  const m=Math.floor((Date.now()-t)/6e4),d1=dayFmt.format(t),d0=dayFmt.format(Date.now());
+  if(d1===d0)return m<1?'الآن':m<60?'قبل '+arn(m)+' د':f12(t);
+  const y=dayFmt.format(Date.now()-864e5);return d1===y?'أمس':d1;
+}
+function renderMsgs(){
+  const el=$('mlist');
+  if(!MS.length){setH(el,'<div class="empty">لا توجد رسائل بعد</div>');return}
+  setH(el,MS.map(m=>`<div class="mi${m.r?'':' nw'}"><div class="w">${esc(msgWhen(m.t))}</div><div><span class="nm">${esc(m.n)}</span><span class="tx2">${esc(m.x)}</span></div></div>`).join(''));
+}
+function refreshMsgs(){
+  if(!hasMsgs())return;
+  try{MS=JSON.parse(TabukApp.getMessages()||'[]');MUN=+TabukApp.unread()||0}catch(e){return}
+  $('msgb').hidden=false;
+  const n=$('msgn');n.hidden=!MUN;n.textContent=MUN?arn(MUN):'';
+  const nt=$('msgnote');nt.hidden=!MUN||PAGE!=='home';
+  nt.textContent='💬 '+(MUN===1?'رسالة جديدة':MUN===2?'رسالتان جديدتان':arn(MUN)+(MUN<=10?' رسائل جديدة':' رسالة جديدة'));
+  if(PAGE==='msgs')renderMsgs();
+}
+$('msgb').addEventListener('click',()=>{showPage('msgs');setTimeout(()=>$('mback2').focus(),30)});
+$('mclr').addEventListener('click',()=>{try{window.TabukApp&&TabukApp.clearMessages&&TabukApp.clearMessages()}catch(e){}refreshMsgs()});
+$('mback2').addEventListener('click',()=>{showPage('home');const t=$$('.tab')[0];t&&t.focus()});
+setInterval(refreshMsgs,5000);refreshMsgs();
 window.__t={runTest,S,get DATA(){return DATA},showPage,loadData};
 </script>
 
