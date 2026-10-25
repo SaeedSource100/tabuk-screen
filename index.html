@@ -366,7 +366,7 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const img=(u,c)=>u?`<img class="${c||'lgs'}" src="${esc(u)}" alt="" onerror="this.remove()">`:'';
 /* ---------- الإعدادات (تُطبَّق فوراً) ---------- */
 const DEF={design:'asri',mode:'pure',dim:'mid',motion:'off',bg:1,bgint:30,theme:'blue',font:'sans',fs:1,kick:1,
-  sRosh:1,sAhli:1,sEu:1,weather:'now5',news:1,prayers:1,pstyle:'strip',countdown:1,salary:1,apps:1,friday:1,rain:1,alert:'sound',vol:70,refresh:15,sui:'tabs',msgsnd:1};
+  sRosh:1,sAhli:1,sEu:1,weather:'now5',news:1,prayers:1,pstyle:'strip',countdown:1,salary:1,apps:1,friday:1,rain:1,alert:'sound',vol:70,refresh:15,sui:'tabs',msgsnd:1,msgon:1};
 let S;try{S={...DEF,...JSON.parse(localStorage.getItem('tabukN')||'{}')}}catch(e){S={...DEF}}
 const save=()=>{try{localStorage.setItem('tabukN',JSON.stringify(S))}catch(e){}};
 const SEGS={
@@ -426,7 +426,7 @@ function buildSettings(){
    h1:rw('الراتب',tg('salary')),h2:rw('التطبيقات',tg('apps')),h3:rw('العد التنازلي للصلاة',tg('countdown')),
    spec:rw('الأوضاع الخاصة',cps([['friday','الجمعة'],['rain','المطر'],['kick','مشهد الركل']]),'تعمل تلقائياً عند توفر شروطها'),
    alert:mu('التنبيه',gp('',seg('alert'))+gp('الصوت',seg('vol'))+gp('',tb('alert','تجربة')),'أي زر يوقف الأذان'),
-   al1:rw('التنبيه',seg('alert'),'أي زر يوقف الأذان'),al2:rw('مستوى الصوت',seg('vol')),al3:rw('تجربة الأذان',tb('alert','تجربة')),msnd:rw('صوت الرسائل',tg('msgsnd'),'نغمة هادئة عند وصول رسالة'),
+   al1:rw('التنبيه',seg('alert'),'أي زر يوقف الأذان'),al2:rw('مستوى الصوت',seg('vol')),al3:rw('تجربة الأذان',tb('alert','تجربة')),msnd:rw('صوت الرسائل',tg('msgsnd'),'نغمة هادئة عند وصول رسالة'),mon:rw('الرسائل على الشاشة',tg('msgon'),'عند الإغلاق تُحفظ في الصندوق بدون شريط'),
    tests:mu('تجارب العروض',gp('',tb('fri','الجمعة'))+gp('',tb('rain','المطر'))+gp('',tb('match','مباراة مباشرة'))+gp('',tb('win','مبروك الفوز')),'تنتهي تلقائياً، وزر الرجوع يوقفها'),
    sc1:rw('وضع الجمعة',tg('friday')+tb('fri','تجربة')),sc2:rw('وضع المطر',tg('rain')+tb('rain','تجربة')),sc3:rw('مباراة مباشرة',tb('match','تجربة')),sc4:rw('مبروك الفوز',tb('win','تجربة')),
    stl:`<div id="stl"></div>`,
@@ -435,8 +435,8 @@ function buildSettings(){
    rst:rw('استعادة الإعدادات الافتراضية',`<button class="btn danger" id="rst">استعادة</button>`)};
   let G;
   if(cards)G={look:P.design+P.mode+P.font+P.fs+P.sui,bgc:P.bg1+P.bg2+P.bg3+P.bg4+P.bg5,home:P.weather+P.pray+P.h1+P.h2+P.h3,spt:P.sp1+P.sp2+P.sp3+P.sp4,
-    alr:P.al1+P.al2+P.al3+P.msnd,spc:P.sc1+P.sc2+P.sc3+P.sc4,sys:P.stl+P.upd+P.ref+P.rst};
-  else G={look:P.design+P.mode+P.bgmu+P.font+P.fs+P.sui,sec:P.spchips+P.weather+P.pray+P.showchips+P.spec,alr:P.alert+P.msnd+P.tests,sys:P.stl+P.upd+P.ref+P.rst};
+    alr:P.al1+P.al2+P.al3+P.mon+P.msnd,spc:P.sc1+P.sc2+P.sc3+P.sc4,sys:P.stl+P.upd+P.ref+P.rst};
+  else G={look:P.design+P.mode+P.bgmu+P.font+P.fs+P.sui,sec:P.spchips+P.weather+P.pray+P.showchips+P.spec,alr:P.alert+P.mon+P.msnd+P.tests,sys:P.stl+P.upd+P.ref+P.rst};
   if(cards){
     $('sbar').innerHTML='';
     $('sbody').innerHTML=`<div id="cards">`+CARDS.map(([k,l])=>`<button class="card" data-c="${k}"><b>${l}</b><small></small></button>`).join('')+`</div>`
@@ -467,7 +467,7 @@ function applyS(){
   B.dataset.mode=S.mode;B.dataset.theme=S.theme;B.dataset.dim=S.dim;B.dataset.font=S.font;B.dataset.motion=S.motion;
   B.dataset.sui=S.sui;document.documentElement.style.setProperty('--fs',S.fs);
   if(S.design==='classic'&&!/[?&]stay=1/.test(location.search)){location.replace('index-old.html');return}
-  try{if(window.TabukApp&&TabukApp.setAlert){TabukApp.setAlert(String(S.alert),+S.vol);TabukApp.setMsgSound&&TabukApp.setMsgSound(!!S.msgsnd)}}catch(e){}
+  try{if(window.TabukApp&&TabukApp.setAlert){TabukApp.setAlert(String(S.alert),+S.vol);TabukApp.setMsgSound&&TabukApp.setMsgSound(!!S.msgsnd);TabukApp.setMsgEnabled&&TabukApp.setMsgEnabled(S.msgon!==0&&S.msgon!==false)}}catch(e){}
   syncSettings();gate();
   safe(modes);safe(renderSlow);safe(renderStatus);safe(renderCards);
 }
@@ -698,6 +698,15 @@ function srcRows(){
   rows.push({n:'ملف البيانات',s:dsrc?'g':ST.data==='none'?'r':'y',tm:dsrc?'آخر تحديث '+clk(g):ST.data==='none'?'غير متوفر':'من النسخة المحفوظة',why:dsrc?'':(ST.data==='none'?'تعذّر تحميل data.json ولا توجد نسخة محفوظة':'تعذّر تحميل data.json، تُعرض النسخة المحفوظة')});
   const w=WXD(),wok=ST.wx==='ok'&&!off;
   rows.push({n:'الطقس',s:wok?'g':w?'y':'r',tm:wok?'آخر تحديث '+clk(Date.parse(w.at+':00+03:00')):w?'من النسخة المحفوظة':'غير متوفر',why:wok?'':w?'تعذّر الوصول إلى خدمة الطقس':'لا توجد بيانات طقس'});
+  try{
+    if(window.TabukApp&&TabukApp.status){
+      const a=JSON.parse(TabukApp.status()||'{}'),now=Date.now(),NM={boot:'إعادة تشغيل التلفزيون',adhan:'موعد الأذان',app:'فتح التطبيق',watch:'المراقبة الدورية'};
+      const ok=a.running&&a.lastPoll&&now-a.lastPoll<12e4;
+      rows.push({n:'خدمة الرسائل',s:ok?'g':a.running?'y':'r',tm:ok?'آخر اتصال '+clk(a.lastPoll):a.running?'لا اتصال حديث':'متوقفة',why:ok?'':a.running?'الخدمة تعمل لكن لم تتصل بتيليجرام منذ دقيقتين':'الخدمة متوقفة، لن تصل رسائل جديدة'});
+      if(a.start)rows.push({n:'بدء الخدمة',s:'g',tm:(NM[a.start]||a.start)+(a.startAt?' · '+clk(a.startAt):''),why:''});
+      if(a.adhanName)rows.push({n:'آخر أذان',s:'g',tm:a.adhanName+' · '+(a.adhanSrc==='service'?'شغّلته الخدمة':'شغّله التطبيق')+(a.adhanAt?' · '+clk(a.adhanAt):''),why:''});
+    }
+  }catch(e){}
   const SRC=[['دوري روشن','fx'],['بطاقة الأهلي','ahli'],['الدوريات الأوروبية','eu'],['ترتيب الدوري','table']];
   const stt=DATA.status||{};
   SRC.forEach(([n,k])=>{
@@ -1121,7 +1130,7 @@ function renderMsgs(){
 function refreshMsgs(){
   if(!hasMsgs())return;
   try{MS=JSON.parse(TabukApp.getMessages()||'[]');MUN=+TabukApp.unread()||0}catch(e){return}
-  $('msgb').hidden=false;
+  $('msgb').hidden=false;try{renderStatus()}catch(e){}
   const n=$('msgn');n.hidden=!MUN;n.textContent=MUN?arn(MUN):'';
   const nt=$('msgnote');nt.hidden=!MUN||PAGE!=='home';
   nt.textContent='💬 '+(MUN===1?'رسالة جديدة':MUN===2?'رسالتان جديدتان':arn(MUN)+(MUN<=10?' رسائل جديدة':' رسالة جديدة'));
