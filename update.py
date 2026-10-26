@@ -148,6 +148,7 @@ def ahli():
                 if ev.get("id") in seen or not any(str(c.get("team", {}).get("id")) == AHLI for c in comps):
                     continue
                 seen.add(ev.get("id")); ev["_c"] = label; evs.append(ev); xs[slug]["ahli"] += 1
+                xs[slug].setdefault("ev", []).append("%s %s" % (ev.get("date"), ev.get("status", {}).get("type", {}).get("name")))
         except Exception as e:
             xs[slug] = {"err": str(e)[:80]}
             print("تخطي بطولة %s: %s" % (slug, e))
@@ -166,7 +167,7 @@ def ahli():
             a_, b_ = int(me.get("score", 0)), int(op.get("score", 0))
             past.append({"k": k, "o": ar(op["team"]["displayName"]), "s": "%d-%d" % (a_, b_), "ol": logo(op["team"]), "c": ev.get("_c"),
                          "r": "W" if a_ > b_ else "L" if a_ < b_ else "D"})
-        elif st.get("state") == "pre" and k > NOW:
+        elif (st.get("state") == "pre" and k > NOW) or st.get("state") == "in":
             fut.append({"k": k, "o": ar(op["team"]["displayName"]), "home": me.get("homeAway") == "home", "ol": logo(op["team"]), "c": ev.get("_c")})
     past.sort(key=lambda x: x["k"]); fut.sort(key=lambda x: x["k"])
     out = {"xs": xs, "form": [p["r"] for p in past[-5:]][::-1],
