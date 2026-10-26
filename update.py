@@ -134,14 +134,18 @@ def ahli():
         if ev.get("id") not in seen:
             seen.add(ev.get("id")); evs.append(ev)
     # بطولات أخرى يلعبها الأهلي: كل بطولة اختيارية، وفشلها لا يوقف البقية
+    xs = {}
     for slug, label in EXTRA:
         try:
-            for ev in events(slug, NOW - dt.timedelta(days=21), NOW + dt.timedelta(days=30)):
+            got = events(slug, NOW - dt.timedelta(days=21), NOW + dt.timedelta(days=30))
+            xs[slug] = {"all": len(got), "ahli": 0}
+            for ev in got:
                 comps = ev.get("competitions", [{}])[0].get("competitors", [])
                 if ev.get("id") in seen or not any(str(c.get("team", {}).get("id")) == AHLI for c in comps):
                     continue
-                seen.add(ev.get("id")); ev["_c"] = label; evs.append(ev)
+                seen.add(ev.get("id")); ev["_c"] = label; evs.append(ev); xs[slug]["ahli"] += 1
         except Exception as e:
+            xs[slug] = {"err": str(e)[:80]}
             print("تخطي بطولة %s: %s" % (slug, e))
     past, fut = [], []
     for ev in evs:
@@ -161,7 +165,7 @@ def ahli():
         elif st.get("state") == "pre" and k > NOW:
             fut.append({"k": k, "o": ar(op["team"]["displayName"]), "home": me.get("homeAway") == "home", "ol": logo(op["team"]), "c": ev.get("_c")})
     past.sort(key=lambda x: x["k"]); fut.sort(key=lambda x: x["k"])
-    out = {"form": [p["r"] for p in past[-5:]][::-1],
+    out = {"xs": xs, "form": [p["r"] for p in past[-5:]][::-1],
            "last": [dict({"o": p["o"], "s": p["s"], "r": p["r"], "ol": p.get("ol")}, **({"c": p["c"]} if p.get("c") else {})) for p in past[-3:]][::-1]}
     if fut:
         n = fut[0]
