@@ -700,10 +700,12 @@ function srcRows(){
   rows.push({n:'الطقس',s:wok?'g':w?'y':'r',tm:wok?'آخر تحديث '+clk(Date.parse(w.at+':00+03:00')):w?'من النسخة المحفوظة':'غير متوفر',why:wok?'':w?'تعذّر الوصول إلى خدمة الطقس':'لا توجد بيانات طقس'});
   try{
     if(window.TabukApp&&TabukApp.status){
-      const a=JSON.parse(TabukApp.status()||'{}'),now=Date.now(),NM={boot:'إعادة تشغيل التلفزيون',adhan:'موعد الأذان',app:'فتح التطبيق',watch:'المراقبة الدورية'};
+      const a=JSON.parse(TabukApp.status()||'{}'),now=Date.now(),NM={boot:'إعادة تشغيل التلفزيون',adhan:'موعد الأذان',app:'فتح التطبيق',watch:'المراقبة الدورية',restart:'أعاده النظام'};
       const ok=a.running&&a.lastPoll&&now-a.lastPoll<12e4;
       rows.push({n:'خدمة الرسائل',s:ok?'g':a.running?'y':'r',tm:ok?'آخر اتصال '+clk(a.lastPoll):a.running?'لا اتصال حديث':'متوقفة',why:ok?'':a.running?'الخدمة تعمل لكن لم تتصل بتيليجرام منذ دقيقتين':'الخدمة متوقفة، لن تصل رسائل جديدة'});
       if(a.start)rows.push({n:'بدء الخدمة',s:'g',tm:(NM[a.start]||a.start)+(a.startAt?' · '+clk(a.startAt):''),why:''});
+      if(a.autoStart===0)rows.push({n:'التشغيل عند الإقلاع',s:'r',tm:'مغلق',why:'أعد منح إذن AUTO_START بـ adb ثم appops write-settings'});
+      else if(a.autoStart===1)rows.push({n:'التشغيل عند الإقلاع',s:'g',tm:'مفعّل',why:''});
       if(a.adhanName)rows.push({n:'آخر أذان',s:'g',tm:a.adhanName+' · '+(a.adhanSrc==='service'?'شغّلته الخدمة':'شغّله التطبيق')+(a.adhanAt?' · '+clk(a.adhanAt):''),why:''});
     }
   }catch(e){}
