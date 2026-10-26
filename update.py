@@ -94,6 +94,8 @@ def fixtures():
 # ---------- الأهلي: ترتيب ونتائج وقادم ----------
 ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/scoreboard?dates=%s"
 AHLI = "8346"
+EXTRA = [("afc.champions", "دوري أبطال آسيا"), ("afc.cup", "دوري أبطال آسيا 2"), ("ksa.kings.cup", "كأس الملك"),
+         ("ksa.super_cup", "كأس السوبر"), ("fifa.cwc", "كأس العالم للأندية")]
 def day_events(league, day):
     last = None
     for _ in range(2):
@@ -131,6 +133,16 @@ def ahli():
     for ev in events("ksa.1", NOW - dt.timedelta(days=45), NOW + dt.timedelta(days=25)):
         if ev.get("id") not in seen:
             seen.add(ev.get("id")); evs.append(ev)
+    # بطولات أخرى يلعبها الأهلي: كل بطولة اختيارية، وفشلها لا يوقف البقية
+    for slug, label in EXTRA:
+        try:
+            for ev in events(slug, NOW - dt.timedelta(days=21), NOW + dt.timedelta(days=30)):
+                comps = ev.get("competitions", [{}])[0].get("competitors", [])
+                if ev.get("id") in seen or not any(str(c.get("team", {}).get("id")) == AHLI for c in comps):
+                    continue
+                seen.add(ev.get("id")); ev["_c"] = label; evs.append(ev)
+        except Exception as e:
+            print("تخطي بطولة %s: %s" % (slug, e))
     past, fut = [], []
     for ev in evs:
         comps = ev["competitions"][0]["competitors"]
@@ -144,16 +156,17 @@ def ahli():
         k = parse_utc(ev["date"]).astimezone(RIY)
         if st.get("state") == "post":
             a_, b_ = int(me.get("score", 0)), int(op.get("score", 0))
-            past.append({"k": k, "o": ar(op["team"]["displayName"]), "s": "%d-%d" % (a_, b_), "ol": logo(op["team"]),
+            past.append({"k": k, "o": ar(op["team"]["displayName"]), "s": "%d-%d" % (a_, b_), "ol": logo(op["team"]), "c": ev.get("_c"),
                          "r": "W" if a_ > b_ else "L" if a_ < b_ else "D"})
         elif st.get("state") == "pre" and k > NOW:
-            fut.append({"k": k, "o": ar(op["team"]["displayName"]), "home": me.get("homeAway") == "home", "ol": logo(op["team"])})
+            fut.append({"k": k, "o": ar(op["team"]["displayName"]), "home": me.get("homeAway") == "home", "ol": logo(op["team"]), "c": ev.get("_c")})
     past.sort(key=lambda x: x["k"]); fut.sort(key=lambda x: x["k"])
     out = {"form": [p["r"] for p in past[-5:]][::-1],
-           "last": [{"o": p["o"], "s": p["s"], "r": p["r"], "ol": p.get("ol")} for p in past[-3:]][::-1]}
+           "last": [dict({"o": p["o"], "s": p["s"], "r": p["r"], "ol": p.get("ol")}, **({"c": p["c"]} if p.get("c") else {})) for p in past[-3:]][::-1]}
     if fut:
         n = fut[0]
         out["next"] = {"d": n["k"].date().isoformat(), "t": n["k"].strftime("%H:%M"), "o": n["o"], "home": n["home"], "ol": n.get("ol")}
+        if n.get("c"): out["next"]["c"] = n["c"]
     if past and past[-1]["r"] == "W":
         out["win"] = {"at": past[-1]["k"].strftime("%Y-%m-%dT%H:%M"), "s": past[-1]["s"], "o": past[-1]["o"], "ol": past[-1].get("ol")}
     try:  # الترتيب (اختياري)
