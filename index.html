@@ -806,13 +806,23 @@ async function pollLive(force){
     const rs=await Promise.allSettled(LG.map(([s])=>fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/'+s+'/scoreboard',{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.json()})));
     if(!rs[0]||rs[0].status!=='fulfilled')throw 0;
     LIVEALL={};LIVE=null;
-    rs.forEach((x,i)=>{if(x.status!=='fulfilled')return;(x.value.events||[]).forEach(ev=>{const p=parseEv(ev);if(!p)return;p.lg=LG[i][1];if(i===0)LIVEALL[p.h.id+'-'+p.a.id]=p;if(p.h.id===AHLI_ID||p.a.id===AHLI_ID){if(!LIVE||Math.abs(p.date-Date.now())<Math.abs(LIVE.date-Date.now()))LIVE=p}})});
+    rs.forEach((x,i)=>{if(x.status!=='fulfilled')return;(x.value.events||[]).forEach(ev=>{const p=parseEv(ev);if(!p)return;p.lg=LG[i][1];p.slug=LG[i][0];if(i===0)LIVEALL[p.h.id+'-'+p.a.id]=p;if(p.h.id===AHLI_ID||p.a.id===AHLI_ID){if(!LIVE||Math.abs(p.date-Date.now())<Math.abs(LIVE.date-Date.now()))LIVE=p}})});
+    if(LIVE&&LIVE.slug&&LIVE.state!=='pre'&&!LIVE.evs.length){try{
+      const sr=await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/'+LIVE.slug+'/summary?event='+LIVE.id,{cache:'no-store'});
+      if(sr.ok){const sj=await sr.json();
+        const ke=(sj.keyEvents||[]).map(d=>{const t=String((d.type&&(d.type.type||d.type.text))||'').toLowerCase();
+          const k=d.scoringPlay||t.indexOf('goal')>=0?'g':t.indexOf('red')>=0?'r':t.indexOf('yellow')>=0?'y':'';
+          return{m:(d.clock&&d.clock.displayValue)||'',k,who:(d.participants&&d.participants[0]&&d.participants[0].athlete&&d.participants[0].athlete.displayName)||'',tid:d.team&&d.team.id}}).filter(x=>x.k);
+        if(ke.length)LIVE.evs=ke;
+        try{const st=sj.header.competitions[0].status;if(!LIVE.detail)LIVE.detail=st.type.shortDetail||st.displayClock||''}catch(e){}}
+    }catch(e){}}
     ST.live='ok';
   }catch(e){ST.live='fail'}
   renderSports();renderStatus();
 }
 function liveFor(h,a){return LIVEALL[lid(h)+'-'+lid(a)]}
 /* حالة صفحة الأهلي */
+function estMin(k){let m=Math.floor((Date.now()-k)/6e4);return m<=45?m+"' (تقديري)":m<62?'استراحة (تقديري)':Math.min(90,m-15)+"' (تقديري)"}
 function ahliMatch(){
   const now=Date.now(),AH=DATA.ahli||{},nx=AH.next;
   if(forceMatch==='live')return{fake:1,state:'in',min:"63'",h:{n:'الأهلي',s:1,l:LOGO},a:{n:'الهلال',s:0,l:'https://a.espncdn.com/i/teamlogos/soccer/500/929.png'},evs:[{m:"34'",k:'g',who:'ايفان توني',mine:1},{m:"51'",k:'y',who:'سالم الدوسري'}],lg:'دوري روشن',id:'fake'};
@@ -820,7 +830,7 @@ function ahliMatch(){
   if(LIVE&&(LIVE.state==='in'||(LIVE.state==='post'&&now-LIVE.date<175*6e4))){
     const ah=LIVE.h.id===AHLI_ID?LIVE.h:LIVE.a,op=ah===LIVE.h?LIVE.a:LIVE.h;
     const nn=nx&&lid(nx.ol)===op.id?nx.o:op.n;
-    return{state:LIVE.state,min:LIVE.state==='in'?(LIVE.detail||LIVE.clock):'انتهت المباراة',h:{n:'الأهلي',s:ah.s,l:LOGO},a:{n:nn,s:op.s,l:nx&&lid(nx.ol)===op.id?nx.ol:op.l},
+    return{state:LIVE.state,min:LIVE.state==='in'?(LIVE.detail||LIVE.clock||estMin(LIVE.date)):'انتهت المباراة',h:{n:'الأهلي',s:ah.s,l:LOGO},a:{n:nn,s:op.s,l:nx&&lid(nx.ol)===op.id?nx.ol:op.l},
       evs:LIVE.evs.map(e=>({...e,mine:e.tid===AHLI_ID})),lg:LIVE.lg||'دوري روشن',id:LIVE.id};
   }
   for(const n of knownKicks()){const k=TT(n);if(now>=k&&now<k+115*6e4){
