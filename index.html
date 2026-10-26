@@ -802,9 +802,11 @@ async function pollLive(force){
   if(!force&&(!needPoll()||Date.now()-lastPoll<55e3))return;
   lastPoll=Date.now();
   try{
-    const r=await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/ksa.1/scoreboard',{cache:'no-store'});
-    if(!r.ok)throw 0;const j=await r.json();LIVEALL={};LIVE=null;
-    (j.events||[]).forEach(ev=>{const p=parseEv(ev);if(!p)return;LIVEALL[p.h.id+'-'+p.a.id]=p;if(p.h.id===AHLI_ID||p.a.id===AHLI_ID){if(!LIVE||Math.abs(p.date-Date.now())<Math.abs(LIVE.date-Date.now()))LIVE=p}});
+    const LG=[['ksa.1','دوري روشن'],['afc.champions','دوري أبطال آسيا للنخبة'],['afc.cup','دوري أبطال آسيا 2'],['ksa.kings.cup','كأس الملك'],['fifa.cwc','كأس العالم للأندية']];
+    const rs=await Promise.allSettled(LG.map(([s])=>fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/'+s+'/scoreboard',{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.json()})));
+    if(!rs[0]||rs[0].status!=='fulfilled')throw 0;
+    LIVEALL={};LIVE=null;
+    rs.forEach((x,i)=>{if(x.status!=='fulfilled')return;(x.value.events||[]).forEach(ev=>{const p=parseEv(ev);if(!p)return;p.lg=LG[i][1];if(i===0)LIVEALL[p.h.id+'-'+p.a.id]=p;if(p.h.id===AHLI_ID||p.a.id===AHLI_ID){if(!LIVE||Math.abs(p.date-Date.now())<Math.abs(LIVE.date-Date.now()))LIVE=p}})});
     ST.live='ok';
   }catch(e){ST.live='fail'}
   renderSports();renderStatus();
@@ -819,11 +821,11 @@ function ahliMatch(){
     const ah=LIVE.h.id===AHLI_ID?LIVE.h:LIVE.a,op=ah===LIVE.h?LIVE.a:LIVE.h;
     const nn=nx&&lid(nx.ol)===op.id?nx.o:op.n;
     return{state:LIVE.state,min:LIVE.state==='in'?(LIVE.detail||LIVE.clock):'انتهت المباراة',h:{n:'الأهلي',s:ah.s,l:LOGO},a:{n:nn,s:op.s,l:nx&&lid(nx.ol)===op.id?nx.ol:op.l},
-      evs:LIVE.evs.map(e=>({...e,mine:e.tid===AHLI_ID})),lg:'دوري روشن',id:LIVE.id};
+      evs:LIVE.evs.map(e=>({...e,mine:e.tid===AHLI_ID})),lg:LIVE.lg||'دوري روشن',id:LIVE.id};
   }
   for(const n of knownKicks()){const k=TT(n);if(now>=k&&now<k+115*6e4){
     let m=Math.floor((now-k)/6e4),txt;if(m<=45)txt=m+"' (تقديري)";else if(m<62)txt='استراحة (تقديري)';else txt=Math.min(90,m-15)+"' (تقديري)";
-    return{est:1,state:'in',min:txt,h:{n:'الأهلي',s:'-',l:LOGO},a:{n:n.o,s:'-',l:n.ol},evs:[],lg:'دوري روشن',id:'est'};}}
+    return{est:1,state:'in',min:txt,h:{n:'الأهلي',s:'-',l:LOGO},a:{n:n.o,s:'-',l:n.ol},evs:[],lg:n.c||'دوري روشن',id:'est'};}}
   return null;
 }
 function knownKicks(){
