@@ -35,7 +35,11 @@ def news():
     return out
 
 # ---------- المباريات: ESPN (دوري روشن ksa.1) ----------
-AR = [("diriyah", "الدرعية"), ("riyadh", "الرياض"), ("taawoun", "التعاون"), ("taawon", "التعاون"),
+AR = [("shababalahli", "شباب الأهلي"), ("wasl", "الوصل"), ("alain", "العين"), ("sharjah", "الشارقة"),
+      ("sadd", "السد"), ("duhail", "الدحيل"), ("gharafa", "الغرافة"), ("rayyan", "الريان"), ("wakrah", "الوكرة"),
+      ("persepolis", "برسبوليس"), ("esteghlal", "استقلال طهران"), ("sepahan", "سباهان"), ("tractor", "تراكتور"),
+      ("pakhtakor", "باختاكور"), ("nasaf", "ناساف"), ("zawraa", "الزوراء"),
+      ("diriyah", "الدرعية"), ("riyadh", "الرياض"), ("taawoun", "التعاون"), ("taawon", "التعاون"),
       ("qadsiah", "القادسية"), ("ettifaq", "الاتفاق"), ("ittihad", "الاتحاد"), ("nassr", "النصر"),
       ("neom", "نيوم"), ("hilal", "الهلال"), ("ahli", "الأهلي"), ("shabab", "الشباب"),
       ("fateh", "الفتح"), ("khaleej", "الخليج"), ("fayha", "الفيحاء"), ("hazem", "الحزم"),
@@ -95,7 +99,7 @@ def fixtures():
 ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/scoreboard?dates=%s"
 AHLI = "8346"
 EXTRA = [("afc.champions", "دوري أبطال آسيا"), ("afc.cup", "دوري أبطال آسيا 2"), ("ksa.kings.cup", "كأس الملك"),
-         ("ksa.super_cup", "كأس السوبر"), ("fifa.cwc", "كأس العالم للأندية")]
+         ("fifa.cwc", "كأس العالم للأندية")]
 def day_events(league, day):
     last = None
     for _ in range(2):

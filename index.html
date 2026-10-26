@@ -851,10 +851,10 @@ function renderIdle(){
   if($('stage2').style.display==='block')resetScene();
   const team=(nm,l)=>`<div class="tm"><div class="lw">${l?`<img src="${esc(l)}" alt="" onerror="this.remove()">`:''}</div><b>${esc(nm)}</b></div>`;
   let top;
-  if(n)top=`<div class="cmp">المباراة القادمة · دوري روشن</div><div class="sc3">${team('الأهلي',LOGO)}<div><div class="big" style="font-size:4.6rem">×</div><div class="stx">${dLabel(n.d)} · ${f12(TT(n))}</div><div style="text-align:center"><span class="pill">${cdBig(TT(n)-Date.now())}</span></div></div>${team(n.o,n.ol)}</div>`;
+  if(n)top=`<div class="cmp">المباراة القادمة · ${esc(n.c||'دوري روشن')}</div><div class="sc3">${team('الأهلي',LOGO)}<div><div class="big" style="font-size:4.6rem">×</div><div class="stx">${dLabel(n.d)} · ${f12(TT(n))}</div><div style="text-align:center"><span class="pill">${cdBig(TT(n)-Date.now())}</span></div></div>${team(n.o,n.ol)}</div>`;
   else top=`<div class="cmp">الأهلي</div><div class="idl" style="top:8rem;font-size:1.3rem">لا توجد مباراة قادمة معلنة الآن</div>`;
   let low='';const L=(AH.last||[])[0];
-  if(L)low+=`<div><h4>آخر نتيجة</h4><div class="rs"><span>${img(L.ol)}${esc(L.o)}</span><b>${esc(L.s)}</b><span class="tag ${L.r}">${FM[L.r]||''}</span></div></div>`;
+  if(L)low+=`<div><h4>آخر نتيجة${L.c?' · '+esc(L.c):''}</h4><div class="rs"><span>${img(L.ol)}${esc(L.o)}</span><b>${esc(L.s)}</b><span class="tag ${L.r}">${FM[L.r]||''}</span></div></div>`;
   const lg=lgCard();if(lg)low+=lg;
   const html=top+`<div class="low">${low}</div>`;
   if(html===lastMt)return;lastMt=html;lastMtHtml='';
