@@ -14,26 +14,6 @@ def get(url, timeout=25):
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read()
 
-# ---------- الأخبار: خلاصة RSS الرسمية لقسم السعودية في العربية ----------
-SKIP = ("/art/", "/views/", "/social/", "/sport/", "/aswaq/", "/culture", "/last-page/", "/1300GMT/")
-def news():
-    root = ET.fromstring(get("https://www.alarabiya.net/feed/rss2/ar/saudi-today.xml"))
-    out, seen = [], set()
-    for it in root.iter("item"):
-        title = re.sub(r"\s+", " ", (it.findtext("title") or "")).strip()
-        link = (it.findtext("link") or "").strip()
-        if not title or title in seen or any(x in link for x in SKIP):
-            continue
-        if "/saudi-today/" not in link and not re.search("السعود|المملكة", title):
-            continue
-        seen.add(title)
-        out.append(title)
-        if len(out) >= 10:
-            break
-    if len(out) < 3:
-        raise ValueError("عدد الأخبار قليل جداً: %d" % len(out))
-    return out
-
 # ---------- المباريات: ESPN (دوري روشن ksa.1) ----------
 AR = [("shababalahli", "شباب الأهلي"), ("wasl", "الوصل"), ("alain", "العين"), ("sharjah", "الشارقة"),
       ("sadd", "السد"), ("duhail", "الدحيل"), ("gharafa", "الغرافة"), ("rayyan", "الريان"), ("wakrah", "الوكرة"),
@@ -299,15 +279,16 @@ def main(path="data.json"):
     except Exception:
         data = {}
     errs = []
-    SRC = {"news": "الأخبار", "fx": "دوري روشن", "wx": "الطقس", "ahli": "بطاقة الأهلي", "eu": "الدوريات الأوروبية", "table": "ترتيب الدوري"}
+    SRC = {"fx": "دوري روشن", "wx": "الطقس", "ahli": "بطاقة الأهلي", "eu": "الدوريات الأوروبية", "table": "ترتيب الدوري"}
     status = {}
-    for key, fn in (("news", news), ("fx", fixtures), ("wx", weather), ("ahli", ahli), ("eu", europe), ("table", table)):
+    for key, fn in (("fx", fixtures), ("wx", weather), ("ahli", ahli), ("eu", europe), ("table", table)):
         try:
             data[key] = fn()
             status[SRC[key]] = {"ok": True}
         except Exception as e:
             errs.append("%s: %s" % (key, e))
             status[SRC[key]] = {"ok": False, "err": "تعذّر الاتصال بالمصدر"}
+    data.pop("news", None)
     data["status"] = status
     data["generated"] = NOW.strftime("%Y-%m-%dT%H:%M")
     data["updated"] = NOW.date().isoformat()
@@ -317,7 +298,7 @@ def main(path="data.json"):
         print("تحذير:", e, file=sys.stderr)
     print("تم. أخطاء:", len(errs))
     # نفشل التشغيل فقط لو فشلت المصادر الخمسة كلها
-    if len(errs) == 6:
+    if len(errs) == 5:
         sys.exit(1)
 
 if __name__ == "__main__":

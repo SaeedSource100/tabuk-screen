@@ -74,7 +74,7 @@ body.alerting #alert{display:block;position:absolute;left:0;right:0;top:0;text-a
 /* ===== الصفحات ===== */
 #pages{position:absolute;top:7.6rem;left:3rem;right:3rem;bottom:2rem}
 .pg{position:absolute;inset:0;display:none}
-body[data-page=home] #p-home,body[data-page=sports] #p-sports,body[data-page=news] #p-news,body[data-page=settings] #p-settings{display:block}
+body[data-page=home] #p-home,body[data-page=sports] #p-sports,body[data-page=settings] #p-settings{display:block}
 .gold{color:var(--gold)}
 .mut{color:var(--mut)}
 /* ===== الرئيسية ===== */
@@ -227,13 +227,6 @@ body.matchpage #p-sports .mt{display:block}
 #cf{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:6}
 #cf i{position:absolute;top:-1rem;border-radius:1px}
 .dropper{position:relative}
-/* ===== الأخبار ===== */
-#p-news .nw{position:absolute;inset:0;overflow:hidden;max-width:96rem}
-.nw .nr{display:flex;gap:1.1rem;align-items:center;padding:1.05rem .3rem;border-bottom:.07rem solid var(--line)}
-.nw .nr::before{content:"";width:.55rem;height:.55rem;border-radius:50%;background:var(--gold);flex:none}
-.nw .nr.b1{font-size:1.7rem;font-weight:900;line-height:1.5}
-.nw .nr.b2{font-size:1.25rem;line-height:1.5}
-.nw h4{margin:0 0 .3rem;color:var(--gold);font-size:1rem}
 /* ===== الإعدادات ===== */
 #p-settings{overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:.3rem .4rem 3rem}
 #p-settings::-webkit-scrollbar{display:none}
@@ -366,7 +359,7 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const img=(u,c)=>u?`<img class="${c||'lgs'}" src="${esc(u)}" alt="" onerror="this.remove()">`:'';
 /* ---------- الإعدادات (تُطبَّق فوراً) ---------- */
 const DEF={design:'asri',mode:'pure',dim:'mid',motion:'off',bg:1,bgint:30,theme:'blue',font:'sans',fs:1,kick:1,
-  sRosh:1,sAhli:1,sEu:1,weather:'now5',news:1,prayers:1,pstyle:'strip',countdown:1,salary:1,apps:1,friday:1,rain:1,alert:'sound',vol:70,refresh:15,sui:'tabs',msgsnd:1,msgon:1};
+  sRosh:1,sAhli:1,sEu:1,weather:'now5',prayers:1,pstyle:'strip',countdown:1,salary:1,apps:1,friday:1,rain:1,alert:'sound',vol:70,refresh:15,sui:'tabs',msgsnd:1,msgon:1};
 let S;try{S={...DEF,...JSON.parse(localStorage.getItem('tabukN')||'{}')}}catch(e){S={...DEF}}
 const save=()=>{try{localStorage.setItem('tabukN',JSON.stringify(S))}catch(e){}};
 const SEGS={
